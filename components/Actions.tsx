@@ -1,6 +1,7 @@
 import { supportMail } from "@/app/config";
 import { faBook, faShop, faTruck } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Link from "next/link";
 
 export function Action({
   title = "",
@@ -8,6 +9,7 @@ export function Action({
   button = "",
   icon = faTruck,
   customStyle = "",
+  linkTo = "/",
 }) {
   return (
     <div
@@ -22,7 +24,9 @@ export function Action({
         <h2 className="card-title text-2xl">{title}</h2>
         <p>{description}</p>
         <div className="card-actions justify-end">
-          <a className="btn btn-primary">{button}</a>
+          <Link href={linkTo} className="btn btn-primary">
+            {button}
+          </Link>
         </div>
       </div>
     </div>
@@ -62,6 +66,7 @@ export default function Actions() {
         }
         button="Заяви сега!"
         icon={faTruck}
+        linkTo="/delivery/new"
       />
       <Action
         title="Поръчай от партньор"
@@ -74,6 +79,7 @@ export default function Actions() {
         }
         button="Виж партньори"
         icon={faShop}
+        linkTo="/shops/explore"
       />
       <Action
         title="Виж история"
@@ -87,6 +93,7 @@ export default function Actions() {
         }
         button="Виж история"
         icon={faBook}
+        linkTo="/history"
       />
       <div className="mockup-window border bg-base-300 w-full">
         <div className="hero min-h-screen bg-base-200">
