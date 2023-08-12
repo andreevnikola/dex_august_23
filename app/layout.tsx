@@ -6,7 +6,9 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { SignedOut } from "@clerk/nextjs/app-beta";
 import { SignedIn } from "@clerk/nextjs/app-beta/client";
 import { AuthenticatedHeader } from "@/components/AuthenticatedHeader";
-import { redirect } from "next/navigation";
+import { config } from "@fortawesome/fontawesome-svg-core";
+import "@fortawesome/fontawesome-svg-core/styles.css";
+config.autoAddCss = false;
 
 const inter = Inter({ subsets: ["latin"] });
 
