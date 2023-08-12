@@ -93,7 +93,6 @@ export default function Actions() {
         }
         button="Виж история"
         icon={faBook}
-        linkTo="/history"
       />
       <div className="mockup-window border bg-base-300 w-full">
         <div className="hero min-h-screen bg-base-200">
