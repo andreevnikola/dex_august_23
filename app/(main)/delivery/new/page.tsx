@@ -1,6 +1,6 @@
 import Footer from "@/components/Footer";
 
-export default function Home() {
+export default function NewDelivery() {
   return (
     <>
       <main className="hero min-h-screen bg-base-200">
@@ -11,9 +11,7 @@ export default function Home() {
             className="max-w-lg w-full rounded-lg shadow-2xl"
           />
           <div>
-            <h1 className="text-5xl font-bold text-neutral">
-              Box Office News!
-            </h1>
+            <h1 className="text-5xl font-bold text-neutral">Create Delivery</h1>
             <p className="py-6 text-neutral">
               Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda
               excepturi exercitationem quasi. In deleniti eaque aut repudiandae

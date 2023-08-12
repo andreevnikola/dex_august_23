@@ -1,7 +1,7 @@
-import { SignInButton, SignUpButton } from "@clerk/nextjs";
+import { SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 
-export const InformationalHeader = () => {
+export const AuthenticatedHeader = () => {
   return (
     <header>
       <nav className="navbar bg-base-100 text-neutral">
@@ -28,25 +28,24 @@ export const InformationalHeader = () => {
               className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
             >
               <li>
-                <a>Предимства</a>
-              </li>
-              <li>
-                <a>Как работи?</a>
-              </li>
-              <li>
-                <a>Отзиви</a>
-              </li>
-              <li>
-                <a>За нас</a>
-              </li>
-              <li>
                 <a>Ценоразпис</a>
+              </li>
+              <li>
+                <a>Магазини</a>
+              </li>
+              <li>
+                <a>История</a>
+              </li>
+              <li>
+                <a>
+                  <strong>Заяви доставка</strong>
+                </a>
               </li>
             </ul>
           </div>
           <Link href="/" className="btn btn-ghost normal-case text-xl px-2.5">
             <img
-              src="images/brand/logo.png"
+              src="/images/brand/logo.png"
               alt="DEX logo"
               className="h-[50px]"
             />
@@ -55,28 +54,23 @@ export const InformationalHeader = () => {
         <div className="navbar-center hidden md:flex">
           <ul className="menu menu-horizontal px-1 gap-1">
             <li>
-              <a>Предимства</a>
+              <a>Ценоразпис</a>
             </li>
             <li>
-              <a>Отзиви</a>
+              <a>Магазини</a>
             </li>
             <li>
-              <a>За нас</a>
+              <a>История</a>
             </li>
             <li>
               <a>
-                <strong>Ценоразпис</strong>
+                <strong>Заяви доставка</strong>
               </a>
             </li>
           </ul>
         </div>
         <div className="navbar-end gap-1.5 max-md:gap-1">
-          <SignInButton afterSignInUrl="/" afterSignUpUrl="/" mode="modal">
-            <a className="btn max-md:text-xs">Sign In</a>
-          </SignInButton>
-          <SignUpButton afterSignInUrl="/" afterSignUpUrl="/" mode="modal">
-            <a className="btn btn-primary max-md:text-xs">Register</a>
-          </SignUpButton>
+          <UserButton afterSignOutUrl="/" />
         </div>
       </nav>
     </header>
