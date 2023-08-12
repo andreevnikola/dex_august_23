@@ -25,7 +25,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en" data-theme="cupcake">
-        <body className={inter.className}>
+        <body className={inter.className + " bg-base-100"}>
           <SignedOut>
             <InformationalHeader />
           </SignedOut>

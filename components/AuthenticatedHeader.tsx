@@ -37,9 +37,9 @@ export const AuthenticatedHeader = () => {
                 <a>История</a>
               </li>
               <li>
-                <a>
+                <Link href="/delivery/new">
                   <strong>Заяви доставка</strong>
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -63,9 +63,9 @@ export const AuthenticatedHeader = () => {
               <a>История</a>
             </li>
             <li>
-              <a>
+              <Link href="/delivery/new">
                 <strong>Заяви доставка</strong>
-              </a>
+              </Link>
             </li>
           </ul>
         </div>
