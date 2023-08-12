@@ -1,3 +1,4 @@
+import { supportMail } from "@/app/config";
 import { faBook, faShop, faTruck } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
@@ -63,15 +64,15 @@ export default function Actions() {
         icon={faTruck}
       />
       <Action
-        title="Поръчай от партниор"
+        title="Поръчай от партньор"
         description={
           <>
             <strong>Купи</strong> си и си <strong>достави</strong> продукт, било
             то хранителен, домакински, електроуреда, инструменти и за каквото
-            още се сетиш, използвайки някои от нашите партниори.
+            още се сетиш, използвайки някои от нашите партньори.
           </>
         }
-        button="Виж партниори"
+        button="Виж партньори"
         icon={faShop}
       />
       <Action
@@ -87,6 +88,31 @@ export default function Actions() {
         button="Виж история"
         icon={faBook}
       />
+      <div className="mockup-window border bg-base-300 w-full">
+        <div className="hero min-h-screen bg-base-200">
+          <div className="hero-content flex-col lg:flex-row">
+            <iframe
+              className="flex rounded-lg shadow-2xl h-[320px] lg:max-w-[50%] w-full max-sm:h-[220px]"
+              src="https://www.youtube.com/embed/dVsiusLQy5Q"
+              title="A look at what’s next for AI and Google Search | Google I/O 2023"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            ></iframe>
+            <div className="flex-1 flex-shrink">
+              <h1 className="text-5xl font-bold text-neutral-focus">
+                Нужда от помощ?
+              </h1>
+              <p className="py-6 text-neutral">
+                В това видео ще видиш основните функции на <strong>Dex</strong>,
+                както и примери за тяхното използване. Ще ти даде полезна
+                информация отнсно уебстраницата и типове които можеш да
+                използваш за да си по продуктивен използвайки нашия продукт. Ако
+                е останало нещо неясно свържете се с нас на:{" "}
+                <strong>{supportMail}</strong>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
