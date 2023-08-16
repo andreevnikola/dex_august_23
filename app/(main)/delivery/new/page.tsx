@@ -6,7 +6,16 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 
 function Error({ errorText = "" }) {
-  return <p className="p-1 text-error">{errorText}</p>;
+  return (
+    <motion.p
+      initial={{ opacity: 0, x: 50 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 50 }}
+      className="p-1 text-error"
+    >
+      {errorText}
+    </motion.p>
+  );
 }
 
 export default function NewDelivery() {
@@ -30,18 +39,24 @@ export default function NewDelivery() {
     customShop: false,
   });
   const verifyServiceForm = () => {
+    let failed = false;
     if (
       typeServiceForm.type === "купи" &&
       (typeServiceForm.description.length < 15 ||
         typeServiceForm.description.length > 250)
-    )
+    ) {
       setErrors((errors) => [...errors, "serviceType.description"]);
+      failed = true;
+    }
     if (
       typeServiceForm.type === "купи" &&
+      typeServiceForm.customShop &&
       (typeServiceForm.shop.length < 5 || typeServiceForm.shop.length > 50)
-    )
+    ) {
       setErrors((errors) => [...errors, "serviceType.shop"]);
-    else setStep(2);
+      failed = true;
+    }
+    if (!failed) setStep(2);
   };
 
   return (
@@ -189,16 +204,17 @@ export default function NewDelivery() {
                           </div>
                         </div>
                         {typeServiceForm.customShop && (
-                          <textarea
+                          <input
+                            type="text"
                             onChange={(e: any) =>
                               setTypeServiceForm((form: any) => ({
                                 ...form,
                                 shop: e.target!.value,
                               }))
                             }
-                            className="textarea textarea-bordered"
                             placeholder="Пример: Lidl до гара Филипово"
-                          ></textarea>
+                            className="input input-bordered w-full"
+                          />
                         )}
                       </label>
                       {errors.includes("serviceType.shop") && (
