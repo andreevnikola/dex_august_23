@@ -20,6 +20,7 @@ function Error({ errorText = "" }) {
 
 export default function NewDelivery() {
   const [step, setStep] = useState(1);
+  const [reachedStep, setReachedStep] = useState(1);
 
   const pratkaTypeDescriptions = new Map();
   pratkaTypeDescriptions.set(
@@ -72,8 +73,27 @@ export default function NewDelivery() {
   ]);
   const verifyServiceForm = () => {
     const verified = serviceFormVerifiers.get("serviceType")!();
-    if (verified) setStep(2);
+    if (verified) {
+      setReachedStep((step) => (step > 2 ? step : 2));
+      setStep(2);
+    }
   };
+
+  const steps = new Map(
+    typeServiceForm.type === "купи"
+      ? [
+          ["serviceType", 1],
+          ["addresses", 2],
+          ["payments", 3],
+        ]
+      : [
+          ["serviceType", 1],
+          ["reciever", 2],
+          ["addresses", 3],
+          ["payments", 4],
+        ]
+  );
+  console.log(steps);
 
   return (
     <>
@@ -86,23 +106,45 @@ export default function NewDelivery() {
             <a
               className={
                 "tab tab-lifted max-sm:text-[0.6rem] " +
-                (step === 1 ? "tab-active" : "")
+                (step === steps.get("serviceType") ? "tab-active " : "") +
+                (!serviceFormVerifiers.get("serviceType")!()
+                  ? "text-red-500 "
+                  : "")
+              }
+              onClick={() =>
+                reachedStep >= steps.get("serviceType")!
+                  ? setStep(steps.get("serviceType")!)
+                  : null
               }
             >
               Вид доставка
             </a>
+            {steps.has("reciever") && (
+              <a
+                className={
+                  "tab tab-lifted max-sm:text-[0.6rem] " +
+                  (step === steps.get("reciever") ? "tab-active " : "") +
+                  (reachedStep < steps.get("reciever")! ? "text-base-300 " : "")
+                }
+                onClick={() =>
+                  reachedStep >= steps.get("reciever")!
+                    ? setStep(steps.get("reciever")!)
+                    : null
+                }
+              >
+                Получател
+              </a>
+            )}
             <a
               className={
                 "tab tab-lifted max-sm:text-[0.6rem] " +
-                (step === 2 ? "tab-active" : "")
+                (step === steps.get("addresses") ? "tab-active " : "") +
+                (reachedStep < steps.get("addresses")! ? "text-base-300 " : "")
               }
-            >
-              Получател
-            </a>
-            <a
-              className={
-                "tab tab-lifted max-sm:text-[0.6rem] " +
-                (step === 3 ? "tab-active" : "")
+              onClick={() =>
+                reachedStep >= steps.get("addresses")!
+                  ? setStep(steps.get("addresses")!)
+                  : null
               }
             >
               Адреси
@@ -110,17 +152,19 @@ export default function NewDelivery() {
             <a
               className={
                 "tab tab-lifted max-sm:text-[0.6rem] " +
-                (step === 4 ? "tab-active" : "")
+                (step === steps.get("payments") ? "tab-active " : "") +
+                (step === steps.get("payments") ? "tab-active " : "") +
+                (reachedStep < steps.get("payments")! ? "text-base-300 " : "")
+              }
+              onClick={() =>
+                reachedStep >= steps.get("payments")!
+                  ? setStep(steps.get("payments")!)
+                  : null
               }
             >
               Плащане
             </a>
-            <a
-              className={
-                "tab tab-lifted flex-grow cursor-default p-0" +
-                (step === 5 ? "tab-active" : "")
-              }
-            ></a>
+            <a className={"tab tab-lifted flex-grow cursor-default p-0"}></a>
           </div>
           {step === 1 && (
             <form
@@ -275,7 +319,7 @@ export default function NewDelivery() {
               </motion.section>
             </form>
           )}
-          {step === 2 && (
+          {steps.has("reciever") && step === steps.get("reciever") && (
             <motion.section
               initial={{ opacity: 0, x: 200 }}
               animate={{ opacity: 1, x: 0 }}
