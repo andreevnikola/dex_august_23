@@ -1,16 +1,20 @@
 "use client";
 import Footer from "@/components/Footer";
-import { faCaretRight, faInfo } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCaretLeft,
+  faCaretRight,
+  faInfo,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function Error({ errorText = "" }) {
   return (
     <motion.p
       initial={{ opacity: 0, x: 50 }}
       animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 50 }}
+      exit={{ opacity: 0, x: -50 }}
       className="p-1 text-error"
     >
       {errorText}
@@ -37,6 +41,7 @@ export default function NewDelivery() {
     description: "",
     shop: "",
     customShop: false,
+    activateValidators: false,
   });
   const serviceFormVerifiers = new Map([
     [
@@ -76,10 +81,65 @@ export default function NewDelivery() {
     if (verified) {
       setReachedStep((step) => (step > 2 ? step : 2));
       setStep(2);
+      return;
     }
+    setTypeServiceForm((service) => ({
+      ...service,
+      activateValidators: true,
+    }));
   };
 
-  const steps = new Map(
+  const [recieverForm, setRecieverForm] = useState({
+    phone: "",
+    phoneStarter: "+359",
+    title: "",
+    description: "",
+    activateValidators: false,
+  });
+  const recieverFormVerifiers = new Map([
+    [
+      "recieverForm.phone",
+      () =>
+        recieverForm.phone?.length === 8 || recieverForm.phone?.length === 9,
+    ],
+    [
+      "recieverForm.description",
+      () =>
+        recieverForm.description.length > 15 &&
+        recieverForm.description.length < 250,
+    ],
+    [
+      "recieverForm.title",
+      () => recieverForm.title.length > 5 && recieverForm.title.length < 30,
+    ],
+    [
+      "reciever",
+      () => {
+        let failed = false;
+        recieverFormVerifiers.forEach((verifier, key) => {
+          if (key != "reciever" && !verifier()) {
+            failed = true;
+            return;
+          }
+        });
+        return !failed;
+      },
+    ],
+  ]);
+  const verifyRecieverForm = () => {
+    const verified = recieverFormVerifiers.get("reciever")!();
+    if (verified) {
+      setReachedStep((step) => (step > 2 ? step : 2));
+      setStep(3);
+      return;
+    }
+    setRecieverForm((reciever) => ({
+      ...reciever,
+      activateValidators: true,
+    }));
+  };
+
+  let steps = new Map(
     typeServiceForm.type === "купи"
       ? [
           ["serviceType", 1],
@@ -93,7 +153,22 @@ export default function NewDelivery() {
           ["payments", 4],
         ]
   );
-  console.log(steps);
+  useEffect(() => {
+    steps = new Map(
+      typeServiceForm.type === "купи"
+        ? [
+            ["serviceType", 1],
+            ["addresses", 2],
+            ["payments", 3],
+          ]
+        : [
+            ["serviceType", 1],
+            ["reciever", 2],
+            ["addresses", 3],
+            ["payments", 4],
+          ]
+    );
+  });
 
   return (
     <>
@@ -209,6 +284,7 @@ export default function NewDelivery() {
                           type: e.target!.value,
                         }))
                       }
+                      value={typeServiceForm?.type}
                     >
                       <option value="пратка">Пратка от адрес до адрес </option>
                       <option value="купи">Купи ми</option>
@@ -272,14 +348,16 @@ export default function NewDelivery() {
                                 shop: e.target!.value,
                               }))
                             }
+                            value={typeServiceForm.shop}
                             placeholder="Пример: Lidl до гара Филипово"
                             className="input input-bordered w-full"
                           />
                         )}
                       </label>
-                      {!serviceFormVerifiers.get("serviceType.shop")!() && (
-                        <Error errorText="Моля въведете валиден магазин!" />
-                      )}
+                      {!serviceFormVerifiers.get("serviceType.shop")!() &&
+                        typeServiceForm.activateValidators && (
+                          <Error errorText="Моля въведете валиден магазин!" />
+                        )}
                     </motion.div>
                     <motion.div
                       initial={{ opacity: 0, x: 50 }}
@@ -300,18 +378,20 @@ export default function NewDelivery() {
                           }
                           className="textarea textarea-bordered"
                           placeholder="Опишете продуктите които искате да бъдат закупени."
+                          value={typeServiceForm.description}
                         ></textarea>
                       </label>
                       {!serviceFormVerifiers.get(
                         "serviceType.description"
-                      )!() && (
-                        <Error errorText="Описанието трябва да е между 15 и 250 знака" />
-                      )}
+                      )!() &&
+                        typeServiceForm.activateValidators && (
+                          <Error errorText="Описанието трябва да е между 15 и 250 знака" />
+                        )}
                     </motion.div>
                   </>
                 )}
                 <button
-                  className="btn btn-block"
+                  className="btn btn-block btn-primary"
                   disabled={!serviceFormVerifiers.get("serviceType")!()}
                 >
                   Следваща стъпка <FontAwesomeIcon icon={faCaretRight} />
@@ -320,48 +400,109 @@ export default function NewDelivery() {
             </form>
           )}
           {steps.has("reciever") && step === steps.get("reciever") && (
-            <motion.section
-              initial={{ opacity: 0, x: 200 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 200 }}
-              className="flex flex-col gap-2"
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                verifyRecieverForm();
+              }}
             >
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text text-lg">
-                    Телефон на получател:
-                  </span>
-                </label>
-                <label className="input-group input-group-lg w-full">
-                  <select className="select select-bordered select-lg">
-                    <option data-countryCode="BG" value="+359">
-                      🇧🇬 +359
-                    </option>
-                  </select>
-                  <input
-                    type="text"
-                    placeholder="896405024"
-                    className="input input-bordered input-lg w-full"
-                  />
-                </label>
-              </div>
-              <div className="form-control">
-                <label className="input-group input-group-vertical">
-                  <span className="w-full text-center flex justify-around">
-                    Информация за пратката
-                  </span>
-                  <input
-                    type="text"
-                    placeholder="Заглавие съдържащо състава на пратката и причина"
-                    className="input input-bordered"
-                  />
-                  <textarea
-                    className="textarea textarea-bordered"
-                    placeholder="Описание на пратката"
-                  ></textarea>
-                </label>
-              </div>
-            </motion.section>
+              <motion.section
+                initial={{ opacity: 0, x: 200 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 200 }}
+                className="flex flex-col gap-2"
+              >
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text text-lg">
+                      Телефон на получател:
+                    </span>
+                  </label>
+                  <label className="input-group input-group-lg w-full">
+                    <select
+                      className="select select-bordered select-lg"
+                      onChange={(e: any) =>
+                        setRecieverForm((form: any) => ({
+                          ...form,
+                          phoneStarter: e.target.value,
+                        }))
+                      }
+                      value={recieverForm.phoneStarter}
+                    >
+                      <option data-countryCode="BG" value="+359">
+                        🇧🇬 +359
+                      </option>
+                    </select>
+                    <input
+                      type="text"
+                      placeholder="896405024"
+                      className="input input-bordered input-lg w-full"
+                      onChange={(e: any) =>
+                        setRecieverForm((form: any) => ({
+                          ...form,
+                          phone: e.target.value,
+                        }))
+                      }
+                      value={recieverForm.phone}
+                    />
+                  </label>
+                  {!recieverFormVerifiers.get("recieverForm.phone")!() &&
+                    recieverForm.activateValidators && (
+                      <Error errorText="Моля въведете валиден телевизиран номер!" />
+                    )}
+                </div>
+                <div className="form-control">
+                  <label className="input-group input-group-vertical">
+                    <span className="w-full text-center flex justify-around">
+                      Информация за пратката
+                    </span>
+                    <input
+                      type="text"
+                      placeholder="Заглавие съдържащо състава на пратката и причина"
+                      className="input input-bordered"
+                      onChange={(e: any) =>
+                        setRecieverForm((form: any) => ({
+                          ...form,
+                          title: e.target.value,
+                        }))
+                      }
+                      value={recieverForm.title}
+                    />
+                    <textarea
+                      className="textarea textarea-bordered"
+                      placeholder="Описание на пратката"
+                      onChange={(e: any) =>
+                        setRecieverForm((form: any) => ({
+                          ...form,
+                          description: e.target.value,
+                        }))
+                      }
+                      value={recieverForm.description}
+                    ></textarea>
+                  </label>
+                  {!recieverFormVerifiers.get("recieverForm.title")!() &&
+                    recieverForm.activateValidators && (
+                      <Error errorText="Заглавието на пратката трябва да е между 5 и 30 знака!" />
+                    )}
+                  {!recieverFormVerifiers.get("recieverForm.description")!() &&
+                    recieverForm.activateValidators && (
+                      <Error errorText="Описанието на пратката трябва да е между 15 и 250 знака!" />
+                    )}
+                </div>
+                <div className="btn-group w-full">
+                  <button
+                    className="btn w-1/2"
+                    type="button"
+                    onClick={() => setStep(1)}
+                  >
+                    <FontAwesomeIcon icon={faCaretLeft} /> Върни Назад
+                  </button>
+                  <button className="btn w-1/2 btn-active">
+                    Продължи <FontAwesomeIcon icon={faCaretRight} />
+                  </button>
+                </div>
+              </motion.section>
+            </form>
           )}
         </main>
       </div>
