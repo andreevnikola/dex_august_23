@@ -20,7 +20,6 @@ function Error({ errorText = "" }) {
 
 export default function NewDelivery() {
   const [step, setStep] = useState(1);
-  const [errors, setErrors] = useState<string[]>([]);
 
   const pratkaTypeDescriptions = new Map();
   pratkaTypeDescriptions.set(
@@ -38,24 +37,30 @@ export default function NewDelivery() {
     shop: "",
     customShop: false,
   });
+  const serviceFormVerifiers = new Map([
+    [
+      "serviceType.description",
+      () =>
+        typeServiceForm.type === "купи" &&
+        (typeServiceForm.description.length < 15 ||
+          typeServiceForm.description.length > 250),
+    ],
+    [
+      "serviceType.shop",
+      () =>
+        typeServiceForm.type === "купи" &&
+        typeServiceForm.customShop &&
+        (typeServiceForm.shop.length < 5 || typeServiceForm.shop.length > 50),
+    ],
+  ]);
   const verifyServiceForm = () => {
     let failed = false;
-    if (
-      typeServiceForm.type === "купи" &&
-      (typeServiceForm.description.length < 15 ||
-        typeServiceForm.description.length > 250)
-    ) {
-      setErrors((errors) => [...errors, "serviceType.description"]);
-      failed = true;
-    }
-    if (
-      typeServiceForm.type === "купи" &&
-      typeServiceForm.customShop &&
-      (typeServiceForm.shop.length < 5 || typeServiceForm.shop.length > 50)
-    ) {
-      setErrors((errors) => [...errors, "serviceType.shop"]);
-      failed = true;
-    }
+    serviceFormVerifiers.forEach((verifier, key) => {
+      if (verifier()) {
+        failed = true;
+        return;
+      }
+    });
     if (!failed) setStep(2);
   };
 
@@ -217,7 +222,7 @@ export default function NewDelivery() {
                           />
                         )}
                       </label>
-                      {errors.includes("serviceType.shop") && (
+                      {serviceFormVerifiers.get("serviceType.shop")!() && (
                         <Error errorText="Моля въведете валиден магазин!" />
                       )}
                     </motion.div>
@@ -242,7 +247,9 @@ export default function NewDelivery() {
                           placeholder="Опишете продуктите които искате да бъдат закупени."
                         ></textarea>
                       </label>
-                      {errors.includes("serviceType.description") && (
+                      {serviceFormVerifiers.get(
+                        "serviceType.description"
+                      )!() && (
                         <Error errorText="Описанието трябва да е между 15 и 250 знака" />
                       )}
                     </motion.div>
