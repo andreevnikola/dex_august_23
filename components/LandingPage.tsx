@@ -1,5 +1,6 @@
-import { SignUpButton } from "@clerk/nextjs";
+import { SignUpButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import Footer from "./Footer";
+import Link from "next/link";
 
 export default function LandingPage() {
   return (
@@ -23,9 +24,16 @@ export default function LandingPage() {
               <strong>DEX</strong> се диверява на таксита за изпълението на
               пратката, а само в Пловдив колите ни са над <strong>5000</strong>
             </p>
-            <SignUpButton mode="modal">
-              <button className="btn btn-primary">Да започваме</button>
-            </SignUpButton>
+            <SignedOut>
+              <SignUpButton mode="modal">
+                <button className="btn btn-primary">Да започваме</button>
+              </SignUpButton>
+            </SignedOut>
+            <SignedIn>
+              <Link href="/" className="btn btn-primary">
+                Да започваме
+              </Link>
+            </SignedIn>
           </div>
         </div>
       </main>
