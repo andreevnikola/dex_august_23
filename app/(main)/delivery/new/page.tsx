@@ -133,7 +133,7 @@ export default function NewDelivery() {
   const verifyRecieverForm = () => {
     const verified = recieverFormVerifiers.get("reciever")!();
     if (verified) {
-      setReachedStep((step) => (step > 2 ? step : 2));
+      setReachedStep((step) => (step > 3 ? step : 3));
       setStep(3);
       return;
     }
@@ -203,7 +203,12 @@ export default function NewDelivery() {
                 className={
                   "tab tab-lifted max-sm:text-[0.6rem] " +
                   (step === steps.get("reciever") ? "tab-active " : "") +
-                  (reachedStep < steps.get("reciever")! ? "text-base-300 " : "")
+                  (reachedStep < steps.get("reciever")!
+                    ? "text-base-300 "
+                    : "") +
+                  (!recieverFormVerifiers.get("reciever")!()
+                    ? "text-red-500 "
+                    : "")
                 }
                 onClick={() =>
                   reachedStep >= steps.get("reciever")!
@@ -397,10 +402,7 @@ export default function NewDelivery() {
                     </motion.div>
                   </>
                 )}
-                <button
-                  className="btn btn-block btn-primary"
-                  disabled={!serviceFormVerifiers.get("serviceType")!()}
-                >
+                <button className="btn btn-block btn-primary">
                   Следваща стъпка <FontAwesomeIcon icon={faCaretRight} />
                 </button>
               </motion.section>
@@ -504,10 +506,7 @@ export default function NewDelivery() {
                   >
                     <FontAwesomeIcon icon={faCaretLeft} /> Върни Назад
                   </button>
-                  <button
-                    className="btn w-1/2 btn-primary"
-                    disabled={!recieverFormVerifiers.get("reciever")!()}
-                  >
+                  <button className="btn w-1/2 btn-primary">
                     Продължи <FontAwesomeIcon icon={faCaretRight} />
                   </button>
                 </div>
