@@ -41,27 +41,38 @@ export default function NewDelivery() {
     [
       "serviceType.description",
       () =>
-        typeServiceForm.type === "купи" &&
-        (typeServiceForm.description.length < 15 ||
-          typeServiceForm.description.length > 250),
+        !(
+          typeServiceForm.type === "купи" &&
+          (typeServiceForm.description.length < 15 ||
+            typeServiceForm.description.length > 250)
+        ),
     ],
     [
       "serviceType.shop",
       () =>
-        typeServiceForm.type === "купи" &&
-        typeServiceForm.customShop &&
-        (typeServiceForm.shop.length < 5 || typeServiceForm.shop.length > 50),
+        !(
+          typeServiceForm.type === "купи" &&
+          typeServiceForm.customShop &&
+          (typeServiceForm.shop.length < 5 || typeServiceForm.shop.length > 50)
+        ),
+    ],
+    [
+      "serviceType",
+      () => {
+        let failed = false;
+        serviceFormVerifiers.forEach((verifier, key) => {
+          if (key != "serviceType" && !verifier()) {
+            failed = true;
+            return;
+          }
+        });
+        return !failed;
+      },
     ],
   ]);
   const verifyServiceForm = () => {
-    let failed = false;
-    serviceFormVerifiers.forEach((verifier, key) => {
-      if (verifier()) {
-        failed = true;
-        return;
-      }
-    });
-    if (!failed) setStep(2);
+    const verified = serviceFormVerifiers.get("serviceType")!();
+    if (verified) setStep(2);
   };
 
   return (
@@ -222,7 +233,7 @@ export default function NewDelivery() {
                           />
                         )}
                       </label>
-                      {serviceFormVerifiers.get("serviceType.shop")!() && (
+                      {!serviceFormVerifiers.get("serviceType.shop")!() && (
                         <Error errorText="Моля въведете валиден магазин!" />
                       )}
                     </motion.div>
@@ -247,7 +258,7 @@ export default function NewDelivery() {
                           placeholder="Опишете продуктите които искате да бъдат закупени."
                         ></textarea>
                       </label>
-                      {serviceFormVerifiers.get(
+                      {!serviceFormVerifiers.get(
                         "serviceType.description"
                       )!() && (
                         <Error errorText="Описанието трябва да е между 15 и 250 знака" />
@@ -255,7 +266,10 @@ export default function NewDelivery() {
                     </motion.div>
                   </>
                 )}
-                <button className="btn btn-block">
+                <button
+                  className="btn btn-block"
+                  disabled={!serviceFormVerifiers.get("serviceType")!()}
+                >
                   Следваща стъпка <FontAwesomeIcon icon={faCaretRight} />
                 </button>
               </motion.section>
