@@ -402,7 +402,14 @@ export default function NewDelivery() {
                     </motion.div>
                   </>
                 )}
-                <button className="btn btn-block btn-primary">
+                <button
+                  className={
+                    "btn btn-block btn-primary " +
+                    (!serviceFormVerifiers.get("serviceType")!()
+                      ? "active:bg-red-500"
+                      : "")
+                  }
+                >
                   Следваща стъпка <FontAwesomeIcon icon={faCaretRight} />
                 </button>
               </motion.section>
@@ -506,7 +513,14 @@ export default function NewDelivery() {
                   >
                     <FontAwesomeIcon icon={faCaretLeft} /> Върни Назад
                   </button>
-                  <button className="btn w-1/2 btn-primary">
+                  <button
+                    className={
+                      "btn w-1/2 btn-primary " +
+                      (!recieverFormVerifiers.get("reciever")!()
+                        ? "active:bg-red-500"
+                        : "")
+                    }
+                  >
                     Продължи <FontAwesomeIcon icon={faCaretRight} />
                   </button>
                 </div>
