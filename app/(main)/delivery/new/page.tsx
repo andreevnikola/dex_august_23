@@ -504,7 +504,10 @@ export default function NewDelivery() {
                   >
                     <FontAwesomeIcon icon={faCaretLeft} /> Върни Назад
                   </button>
-                  <button className="btn w-1/2 btn-active">
+                  <button
+                    className="btn w-1/2 btn-primary"
+                    disabled={!recieverFormVerifiers.get("reciever")!()}
+                  >
                     Продължи <FontAwesomeIcon icon={faCaretRight} />
                   </button>
                 </div>
