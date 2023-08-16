@@ -35,6 +35,10 @@ export default function NewDelivery() {
     "купи",
     "Купи ми | Шофьорът отговорен за изпълнението на поръчката ти ще закупи желаните от теб продукти. Цената не може да надвишава 50лв."
   );
+  pratkaTypeDescriptions.set(
+    "насрочен час",
+    "Пратка с насрочен час | Пратка от адрес до адрес, като може да избереш в колко часа колата да е на адреса на изпращача и в колко на получателя."
+  );
 
   const [typeServiceForm, setTypeServiceForm] = useState({
     type: "пратка",
@@ -251,7 +255,7 @@ export default function NewDelivery() {
               <motion.section
                 initial={{ opacity: 0, x: 200 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 200 }}
+                exit={{ opacity: 0, x: -200 }}
                 className="flex flex-col gap-4"
               >
                 <div className="form-control relative">
@@ -287,6 +291,9 @@ export default function NewDelivery() {
                       value={typeServiceForm?.type}
                     >
                       <option value="пратка">Пратка от адрес до адрес </option>
+                      <option value="насрочен час">
+                        Пратка с насрочен час
+                      </option>
                       <option value="купи">Купи ми</option>
                     </select>
                   </label>
@@ -296,7 +303,7 @@ export default function NewDelivery() {
                     <motion.div
                       initial={{ opacity: 0, x: 50 }}
                       animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 50 }}
+                      exit={{ opacity: 0, x: -50 }}
                       className="form-control"
                     >
                       <label className="input-group input-group-vertical">
@@ -409,7 +416,7 @@ export default function NewDelivery() {
               <motion.section
                 initial={{ opacity: 0, x: 200 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 200 }}
+                exit={{ opacity: 0, x: -200 }}
                 className="flex flex-col gap-2"
               >
                 <div className="form-control">
