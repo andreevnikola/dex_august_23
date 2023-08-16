@@ -26,6 +26,8 @@ export default function NewDelivery() {
   const [typeServiceForm, setTypeServiceForm] = useState({
     type: "пратка",
     description: "",
+    shop: "",
+    customShop: false,
   });
   const verifyServiceForm = () => {
     if (
@@ -34,6 +36,11 @@ export default function NewDelivery() {
         typeServiceForm.description.length > 250)
     )
       setErrors((errors) => [...errors, "serviceType.description"]);
+    if (
+      typeServiceForm.type === "купи" &&
+      (typeServiceForm.shop.length < 5 || typeServiceForm.shop.length > 50)
+    )
+      setErrors((errors) => [...errors, "serviceType.shop"]);
     else setStep(2);
   };
 
@@ -134,26 +141,96 @@ export default function NewDelivery() {
                   </label>
                 </div>
                 {typeServiceForm?.type === "купи" && (
-                  <div className="form-control">
-                    <label className="input-group input-group-vertical">
-                      <span className="w-full text-center flex justify-around">
-                        Опишете желаните от вас продукти
-                      </span>
-                      <textarea
-                        onChange={(e: any) =>
-                          setTypeServiceForm((form: any) => ({
-                            ...form,
-                            description: e.target!.value,
-                          }))
-                        }
-                        className="textarea textarea-bordered"
-                        placeholder="Опишете продуктите които искате да бъдат закупени, дайте предложения за места от които могат да бъдат закупени."
-                      ></textarea>
-                    </label>
-                    {errors.includes("serviceType.description") && (
-                      <Error errorText="Описанието трябва да е между 15 и 250 знака" />
-                    )}
-                  </div>
+                  <>
+                    <motion.div
+                      initial={{ opacity: 0, x: 50 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 50 }}
+                      className="form-control"
+                    >
+                      <label className="input-group input-group-vertical">
+                        <span className="w-full text-center flex justify-around">
+                          Предложете магазин
+                        </span>
+                        <div className="flex justify-between p-2 border-l border-r border-neutral-content px-5">
+                          <div className="flex gap-3 max-sm:gap-1">
+                            <input
+                              type="radio"
+                              name="shop"
+                              className="radio radio-primary radio-sm"
+                              onChange={(e: any) =>
+                                setTypeServiceForm((form: any) => ({
+                                  ...form,
+                                  customShop: !e.target.checked,
+                                }))
+                              }
+                              checked={!typeServiceForm.customShop}
+                            />
+                            <p className="w-full flex justify-around text-sm max-sm:text-xs">
+                              Удобен за изпълнителя
+                            </p>
+                          </div>
+                          <div className="flex gap-3 max-sm:gap-1">
+                            <p className="w-full flex justify-around text-sm max-sm:text-xs">
+                              Избран от Вас
+                            </p>
+                            <input
+                              type="radio"
+                              name="shop"
+                              className="radio radio-primary radio-sm"
+                              onChange={(e: any) =>
+                                setTypeServiceForm((form: any) => ({
+                                  ...form,
+                                  customShop: e.target.checked,
+                                }))
+                              }
+                              checked={typeServiceForm.customShop}
+                            />
+                          </div>
+                        </div>
+                        {typeServiceForm.customShop && (
+                          <textarea
+                            onChange={(e: any) =>
+                              setTypeServiceForm((form: any) => ({
+                                ...form,
+                                shop: e.target!.value,
+                              }))
+                            }
+                            className="textarea textarea-bordered"
+                            placeholder="Пример: Lidl до гара Филипово"
+                          ></textarea>
+                        )}
+                      </label>
+                      {errors.includes("serviceType.shop") && (
+                        <Error errorText="Моля въведете валиден магазин!" />
+                      )}
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, x: 50 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 50 }}
+                      className="form-control"
+                    >
+                      <label className="input-group input-group-vertical">
+                        <span className="w-full text-center flex justify-around">
+                          Опишете желаните от Вас продукти
+                        </span>
+                        <textarea
+                          onChange={(e: any) =>
+                            setTypeServiceForm((form: any) => ({
+                              ...form,
+                              description: e.target!.value,
+                            }))
+                          }
+                          className="textarea textarea-bordered"
+                          placeholder="Опишете продуктите които искате да бъдат закупени."
+                        ></textarea>
+                      </label>
+                      {errors.includes("serviceType.description") && (
+                        <Error errorText="Описанието трябва да е между 15 и 250 знака" />
+                      )}
+                    </motion.div>
+                  </>
                 )}
                 <button className="btn btn-block">
                   Следваща стъпка <FontAwesomeIcon icon={faCaretRight} />
