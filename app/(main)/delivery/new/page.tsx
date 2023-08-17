@@ -527,6 +527,53 @@ export default function NewDelivery() {
               </motion.section>
             </form>
           )}
+          {steps.has("addresses") && step === steps.get("addresses") && (
+            <>
+              <div className="form-control">
+                <label className="input-group input-group-vertical">
+                  <span className="flex w-full justify-center gap-1">
+                    Информация за <strong className="w-fit">изпращач</strong>
+                  </span>
+                  <input
+                    type="text"
+                    placeholder="Адрес на изпращача"
+                    className="input input-bordered"
+                  />
+                  <div className="flex justify-between p-2 border-l border-r border-b border-neutral-content px-5">
+                    <div className="flex gap-3 max-sm:gap-1">
+                      <input
+                        type="radio"
+                        name="shop"
+                        className="radio radio-primary radio-sm"
+                        checked
+                      />
+                      <p className="w-full flex justify-around text-sm max-sm:text-xs">
+                        Възможно най скоро
+                      </p>
+                    </div>
+                    <div className="flex gap-3 max-sm:gap-1">
+                      <p className="w-full flex justify-around text-sm max-sm:text-xs">
+                        Точен час
+                      </p>
+                      <input
+                        type="radio"
+                        name="shop"
+                        className="radio radio-primary radio-sm"
+                      />
+                    </div>
+                  </div>
+                  <div className="gap-3 flex justify-between p-2 border-l border-r border-b border-neutral-content px-5">
+                    <label className="label w-fit">
+                      <div className="label-text">
+                        Час за пристигане на адрес на <strong>изпращач</strong>
+                      </div>
+                    </label>
+                    <input type="time" className="input flex flex-grow" />
+                  </div>
+                </label>
+              </div>
+            </>
+          )}
         </main>
       </div>
       <Footer />
