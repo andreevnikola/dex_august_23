@@ -1,5 +1,5 @@
 "use client";
-import { getCurrentTime, getCurrentTimeToMinutes } from "@/app/config";
+import { getCurrentTime } from "@/app/config";
 import Footer from "@/components/Footer";
 import {
   faCaretLeft,
@@ -8,7 +8,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 function Error({ errorText = "" }) {
   return (
@@ -26,7 +26,7 @@ function Error({ errorText = "" }) {
 export default function NewDelivery() {
   const [step, setStep] = useState(1);
   const [reachedStep, setReachedStep] = useState(1);
-  const currentTime = getCurrentTimeToMinutes();
+  const currentTime = getCurrentTime();
   // const soonestCallableTime = currentTime.getTime +
 
   const pratkaTypeDescriptions = new Map();
@@ -43,14 +43,8 @@ export default function NewDelivery() {
     "Пратка с насрочен час | Пратка от адрес до адрес, като може да избереш в колко часа колата да е на адреса на изпращача и в колко на получателя."
   );
 
-  const [typeServiceForm, setTypeServiceForm] = useState({
-    type: "пратка",
-    description: "",
-    shop: "",
-    customShop: false,
-    activateValidators: false,
-  });
-  const serviceFormVerifiers = new Map([
+  const validators = new Map([
+    // === TYPE SERVICE FORM VALIDATORS ===
     [
       "serviceType.description",
       () =>
@@ -73,8 +67,8 @@ export default function NewDelivery() {
       "serviceType",
       () => {
         let failed = false;
-        serviceFormVerifiers.forEach((verifier, key) => {
-          if (key != "serviceType" && !verifier()) {
+        validators.forEach((verifier, key) => {
+          if (key.startsWith("serviceType.") && !verifier()) {
             failed = true;
             return;
           }
@@ -82,28 +76,8 @@ export default function NewDelivery() {
         return !failed;
       },
     ],
-  ]);
-  const verifyServiceForm = () => {
-    const verified = serviceFormVerifiers.get("serviceType")!();
-    if (verified) {
-      setReachedStep((step) => Math.max(step + 1, reachedStep));
-      setStep(step + 1);
-      return;
-    }
-    setTypeServiceForm((service) => ({
-      ...service,
-      activateValidators: true,
-    }));
-  };
-
-  const [recieverForm, setRecieverForm] = useState({
-    phone: "",
-    phoneStarter: "+359",
-    title: "",
-    description: "",
-    activateValidators: false,
-  });
-  const recieverFormVerifiers = new Map([
+    // ====================================
+    // === RECIEVER FORM VALIDATORS ===
     [
       "recieverForm.phone",
       () =>
@@ -123,8 +97,8 @@ export default function NewDelivery() {
       "reciever",
       () => {
         let failed = false;
-        recieverFormVerifiers.forEach((verifier, key) => {
-          if (key != "reciever" && !verifier()) {
+        validators.forEach((verifier, key) => {
+          if (key.startsWith("recieverForm.") && !verifier()) {
             failed = true;
             return;
           }
@@ -132,9 +106,71 @@ export default function NewDelivery() {
         return !failed;
       },
     ],
+    // ================================
+    // === ADDRESSES FORM VALIDATORS ===
+    [
+      "addressesForm.senderAddress",
+      () =>
+        addressesForm.senderAddress &&
+        addressesForm.senderAddress.length > 5 &&
+        addressesForm.senderAddress.length < 100,
+    ],
+    [
+      "addressesForm.senderSendingTime",
+      () =>
+        addressesForm.senderSendingTime &&
+        (addressesForm.senderSendingTime === "sooner" ||
+          (addressesForm.senderSendingTime.includes(":") &&
+            parseInt(addressesForm.senderSendingTime.split(":")[0]) * 60 +
+              parseInt(addressesForm.senderSendingTime.split(":")[1]) >
+              currentTime.getHours() * 60 + currentTime.getMinutes() + 90)),
+    ],
+    [
+      "addresses",
+      () => {
+        let failed = false;
+        validators.forEach((verifier, key) => {
+          if (key.startsWith("addressesForm.") && !verifier()) {
+            failed = true;
+            return;
+          }
+        });
+        return !failed;
+      },
+    ],
+    // =================================
   ]);
+
+  const [typeServiceForm, setTypeServiceForm] = useState({
+    type: "пратка",
+    description: "",
+    shop: "",
+    customShop: false,
+    activateValidators: false,
+  });
+
+  const verifyServiceForm = () => {
+    const verified = validators.get("serviceType")!();
+    if (verified) {
+      setReachedStep((step) => Math.max(step + 1, reachedStep));
+      setStep(step + 1);
+      return;
+    }
+    setTypeServiceForm((service) => ({
+      ...service,
+      activateValidators: true,
+    }));
+  };
+
+  const [recieverForm, setRecieverForm] = useState({
+    phone: "",
+    phoneStarter: "+359",
+    title: "",
+    description: "",
+    activateValidators: false,
+  });
   const verifyRecieverForm = () => {
-    const verified = recieverFormVerifiers.get("reciever")!();
+    const verified = validators.get("reciever")!();
     if (verified) {
       setReachedStep((step) => Math.max(step + 1, reachedStep));
       setStep(step + 1);
@@ -153,30 +189,8 @@ export default function NewDelivery() {
     recieverRecievingTime: "sooner",
     activateValidators: false,
   });
-  const addressesFormVerifiers = new Map([
-    [
-      "addressesForm.senderAddress",
-      () =>
-        addressesForm.senderAddress &&
-        addressesForm.senderAddress.length > 5 &&
-        addressesForm.senderAddress.length < 100,
-    ],
-    [
-      "addresses",
-      () => {
-        let failed = false;
-        addressesFormVerifiers.forEach((verifier, key) => {
-          if (key != "addresses" && !verifier()) {
-            failed = true;
-            return;
-          }
-        });
-        return !failed;
-      },
-    ],
-  ]);
   const verifyAddressesForm = () => {
-    const verified = addressesFormVerifiers.get("addresses")!();
+    const verified = validators.get("addresses")!();
     if (verified) {
       setReachedStep((step) => Math.max(step + 1, reachedStep));
       setStep(step + 1);
@@ -188,22 +202,16 @@ export default function NewDelivery() {
     }));
   };
 
-  let steps = new Map(
-    typeServiceForm.type === "купи"
-      ? [
-          ["serviceType", 1],
-          ["addresses", 2],
-          ["payments", 3],
-        ]
-      : [
-          ["serviceType", 1],
-          ["reciever", 2],
-          ["addresses", 3],
-          ["payments", 4],
-        ]
+  let steps = useRef(
+    new Map([
+      ["serviceType", 1],
+      ["reciever", 2],
+      ["addresses", 3],
+      ["payments", 4],
+    ])
   );
   useEffect(() => {
-    steps = new Map(
+    steps.current = new Map(
       typeServiceForm.type === "купи"
         ? [
             ["serviceType", 1],
@@ -219,8 +227,6 @@ export default function NewDelivery() {
     );
   }, [typeServiceForm]);
 
-  console.log(currentTime);
-
   return (
     <>
       <div className="w-full flex min-h-screen justify-around items-center">
@@ -232,34 +238,37 @@ export default function NewDelivery() {
             <a
               className={
                 "tab tab-lifted max-sm:text-[0.6rem] " +
-                (step === steps.get("serviceType") ? "tab-active " : "") +
-                (!serviceFormVerifiers.get("serviceType")!()
-                  ? "text-red-500 "
-                  : "")
+                (step === steps.current.get("serviceType")
+                  ? "tab-active "
+                  : "") +
+                (!validators.get("serviceType")!() ? "text-red-500 " : "")
               }
               onClick={() =>
-                reachedStep >= steps.get("serviceType")!
-                  ? setStep(steps.get("serviceType")!)
+                reachedStep >= steps.current.get("serviceType")!
+                  ? setStep(steps.current.get("serviceType")!)
                   : null
               }
             >
               Вид доставка
             </a>
-            {steps.has("reciever") && (
+            {steps.current.has("reciever") && (
               <a
                 className={
                   "tab tab-lifted max-sm:text-[0.6rem] " +
-                  (step === steps.get("reciever") ? "tab-active " : "") +
-                  (reachedStep < steps.get("reciever")!
+                  (step === steps.current.get("reciever")
+                    ? "tab-active "
+                    : "") +
+                  (reachedStep < steps.current.get("reciever")!
                     ? "text-base-300 "
                     : "") +
-                  (!recieverFormVerifiers.get("reciever")!()
+                  (!validators.get("reciever")!() &&
+                  reachedStep >= steps.current.get("reciever")!
                     ? "text-red-500 "
                     : "")
                 }
                 onClick={() =>
-                  reachedStep >= steps.get("reciever")!
-                    ? setStep(steps.get("reciever")!)
+                  reachedStep >= steps.current.get("reciever")!
+                    ? setStep(steps.current.get("reciever")!)
                     : null
                 }
               >
@@ -269,12 +278,14 @@ export default function NewDelivery() {
             <a
               className={
                 "tab tab-lifted max-sm:text-[0.6rem] " +
-                (step === steps.get("addresses") ? "tab-active " : "") +
-                (reachedStep < steps.get("addresses")! ? "text-base-300 " : "")
+                (step === steps.current.get("addresses") ? "tab-active " : "") +
+                (reachedStep < steps.current.get("addresses")!
+                  ? "text-base-300 "
+                  : "")
               }
               onClick={() =>
-                reachedStep >= steps.get("addresses")!
-                  ? setStep(steps.get("addresses")!)
+                reachedStep >= steps.current.get("addresses")!
+                  ? setStep(steps.current.get("addresses")!)
                   : null
               }
             >
@@ -283,13 +294,15 @@ export default function NewDelivery() {
             <a
               className={
                 "tab tab-lifted max-sm:text-[0.6rem] " +
-                (step === steps.get("payments") ? "tab-active " : "") +
-                (step === steps.get("payments") ? "tab-active " : "") +
-                (reachedStep < steps.get("payments")! ? "text-base-300 " : "")
+                (step === steps.current.get("payments") ? "tab-active " : "") +
+                (step === steps.current.get("payments") ? "tab-active " : "") +
+                (reachedStep < steps.current.get("payments")!
+                  ? "text-base-300 "
+                  : "")
               }
               onClick={() =>
-                reachedStep >= steps.get("payments")!
-                  ? setStep(steps.get("payments")!)
+                reachedStep >= steps.current.get("payments")!
+                  ? setStep(steps.current.get("payments")!)
                   : null
               }
             >
@@ -413,7 +426,7 @@ export default function NewDelivery() {
                           />
                         )}
                       </label>
-                      {!serviceFormVerifiers.get("serviceType.shop")!() &&
+                      {!validators.get("serviceType.shop")!() &&
                         typeServiceForm.activateValidators && (
                           <Error errorText="Моля въведете валиден магазин!" />
                         )}
@@ -440,9 +453,7 @@ export default function NewDelivery() {
                           value={typeServiceForm.description}
                         ></textarea>
                       </label>
-                      {!serviceFormVerifiers.get(
-                        "serviceType.description"
-                      )!() &&
+                      {!validators.get("serviceType.description")!() &&
                         typeServiceForm.activateValidators && (
                           <Error errorText="Описанието трябва да е между 15 и 250 знака" />
                         )}
@@ -452,7 +463,7 @@ export default function NewDelivery() {
                 <button
                   className={
                     "btn btn-block btn-primary " +
-                    (!serviceFormVerifiers.get("serviceType")!()
+                    (!validators.get("serviceType")!()
                       ? "active:bg-red-500"
                       : "")
                   }
@@ -462,241 +473,261 @@ export default function NewDelivery() {
               </motion.section>
             </form>
           )}
-          {steps.has("reciever") && step === steps.get("reciever") && (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                verifyRecieverForm();
-              }}
-            >
-              <motion.section
-                initial={{ opacity: 0, x: 200 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -200 }}
-                className="flex flex-col gap-2"
+          {steps.current.has("reciever") &&
+            step === steps.current.get("reciever") && (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  verifyRecieverForm();
+                }}
               >
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text text-lg">
-                      Телефон на получател:
-                    </span>
-                  </label>
-                  <label className="input-group input-group-lg w-full">
-                    <select
-                      className="select select-bordered select-lg"
-                      onChange={(e: any) =>
-                        setRecieverForm((form: any) => ({
-                          ...form,
-                          phoneStarter: e.target.value,
-                        }))
-                      }
-                      value={recieverForm.phoneStarter}
+                <motion.section
+                  initial={{ opacity: 0, x: 200 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -200 }}
+                  className="flex flex-col gap-2"
+                >
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text text-lg">
+                        Телефон на получател:
+                      </span>
+                    </label>
+                    <label className="input-group input-group-lg w-full">
+                      <select
+                        className="select select-bordered select-lg"
+                        onChange={(e: any) =>
+                          setRecieverForm((form: any) => ({
+                            ...form,
+                            phoneStarter: e.target.value,
+                          }))
+                        }
+                        value={recieverForm.phoneStarter}
+                      >
+                        <option data-countryCode="BG" value="+359">
+                          🇧🇬 +359
+                        </option>
+                      </select>
+                      <input
+                        type="text"
+                        placeholder="896405024"
+                        className="input input-bordered input-lg w-full"
+                        onChange={(e: any) =>
+                          setRecieverForm((form: any) => ({
+                            ...form,
+                            phone: e.target.value,
+                          }))
+                        }
+                        value={recieverForm.phone}
+                      />
+                    </label>
+                    {!validators.get("recieverForm.phone")!() &&
+                      recieverForm.activateValidators && (
+                        <Error errorText="Моля въведете валиден телевизиран номер!" />
+                      )}
+                  </div>
+                  <div className="form-control">
+                    <label className="input-group input-group-vertical">
+                      <span className="w-full text-center flex justify-around">
+                        Информация за пратката
+                      </span>
+                      <input
+                        type="text"
+                        placeholder="Заглавие съдържащо състава на пратката и причина"
+                        className="input input-bordered"
+                        onChange={(e: any) =>
+                          setRecieverForm((form: any) => ({
+                            ...form,
+                            title: e.target.value,
+                          }))
+                        }
+                        value={recieverForm.title}
+                      />
+                      <textarea
+                        className="textarea textarea-bordered"
+                        placeholder="Описание на пратката"
+                        onChange={(e: any) =>
+                          setRecieverForm((form: any) => ({
+                            ...form,
+                            description: e.target.value,
+                          }))
+                        }
+                        value={recieverForm.description}
+                      ></textarea>
+                    </label>
+                    {!validators.get("recieverForm.title")!() &&
+                      recieverForm.activateValidators && (
+                        <Error errorText="Заглавието на пратката трябва да е между 5 и 30 знака!" />
+                      )}
+                    {!validators.get("recieverForm.description")!() &&
+                      recieverForm.activateValidators && (
+                        <Error errorText="Описанието на пратката трябва да е между 15 и 250 знака!" />
+                      )}
+                  </div>
+                  <div className="btn-group w-full">
+                    <button
+                      className="btn w-1/2"
+                      type="button"
+                      onClick={() => setStep(1)}
                     >
-                      <option data-countryCode="BG" value="+359">
-                        🇧🇬 +359
-                      </option>
-                    </select>
-                    <input
-                      type="text"
-                      placeholder="896405024"
-                      className="input input-bordered input-lg w-full"
-                      onChange={(e: any) =>
-                        setRecieverForm((form: any) => ({
-                          ...form,
-                          phone: e.target.value,
-                        }))
+                      <FontAwesomeIcon icon={faCaretLeft} /> Върни Назад
+                    </button>
+                    <button
+                      className={
+                        "btn w-1/2 btn-primary " +
+                        (!validators.get("reciever")!()
+                          ? "active:bg-red-500"
+                          : "")
                       }
-                      value={recieverForm.phone}
-                    />
-                  </label>
-                  {!recieverFormVerifiers.get("recieverForm.phone")!() &&
-                    recieverForm.activateValidators && (
-                      <Error errorText="Моля въведете валиден телевизиран номер!" />
-                    )}
-                </div>
-                <div className="form-control">
-                  <label className="input-group input-group-vertical">
-                    <span className="w-full text-center flex justify-around">
-                      Информация за пратката
-                    </span>
-                    <input
-                      type="text"
-                      placeholder="Заглавие съдържащо състава на пратката и причина"
-                      className="input input-bordered"
-                      onChange={(e: any) =>
-                        setRecieverForm((form: any) => ({
-                          ...form,
-                          title: e.target.value,
-                        }))
-                      }
-                      value={recieverForm.title}
-                    />
-                    <textarea
-                      className="textarea textarea-bordered"
-                      placeholder="Описание на пратката"
-                      onChange={(e: any) =>
-                        setRecieverForm((form: any) => ({
-                          ...form,
-                          description: e.target.value,
-                        }))
-                      }
-                      value={recieverForm.description}
-                    ></textarea>
-                  </label>
-                  {!recieverFormVerifiers.get("recieverForm.title")!() &&
-                    recieverForm.activateValidators && (
-                      <Error errorText="Заглавието на пратката трябва да е между 5 и 30 знака!" />
-                    )}
-                  {!recieverFormVerifiers.get("recieverForm.description")!() &&
-                    recieverForm.activateValidators && (
-                      <Error errorText="Описанието на пратката трябва да е между 15 и 250 знака!" />
-                    )}
-                </div>
-                <div className="btn-group w-full">
-                  <button
-                    className="btn w-1/2"
-                    type="button"
-                    onClick={() => setStep(1)}
-                  >
-                    <FontAwesomeIcon icon={faCaretLeft} /> Върни Назад
-                  </button>
-                  <button
-                    className={
-                      "btn w-1/2 btn-primary " +
-                      (!recieverFormVerifiers.get("reciever")!()
-                        ? "active:bg-red-500"
-                        : "")
-                    }
-                  >
-                    Продължи <FontAwesomeIcon icon={faCaretRight} />
-                  </button>
-                </div>
-              </motion.section>
-            </form>
-          )}
-          {steps.has("addresses") && step === steps.get("addresses") && (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                verifyAddressesForm();
-              }}
-            >
-              <motion.section
-                initial={{ opacity: 0, x: 200 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -200 }}
-                className="flex flex-col gap-2"
+                    >
+                      Продължи <FontAwesomeIcon icon={faCaretRight} />
+                    </button>
+                  </div>
+                </motion.section>
+              </form>
+            )}
+          {steps.current.has("addresses") &&
+            step === steps.current.get("addresses") && (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  verifyAddressesForm();
+                }}
               >
-                <div className="form-control">
-                  <label className="input-group input-group-vertical">
-                    <span className="flex w-full justify-center gap-1">
-                      Информация за <strong className="w-fit">изпращач</strong>
-                    </span>
-                    <input
-                      type="text"
-                      placeholder="Адрес на изпращача"
-                      className="input input-bordered"
-                      onChange={(e: any) =>
-                        setAddressesForm((form: any) => ({
-                          ...form,
-                          senderAddress: e.target.value,
-                        }))
+                <motion.section
+                  initial={{ opacity: 0, x: 200 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -200 }}
+                  className="flex flex-col gap-2"
+                >
+                  <div className="form-control">
+                    <label className="input-group input-group-vertical">
+                      <span className="flex w-full justify-center gap-1">
+                        Информация за{" "}
+                        <strong className="w-fit">изпращач</strong>
+                      </span>
+                      <input
+                        type="text"
+                        placeholder="Адрес на изпращача"
+                        className="input input-bordered"
+                        onChange={(e: any) =>
+                          setAddressesForm((form: any) => ({
+                            ...form,
+                            senderAddress: e.target.value,
+                          }))
+                        }
+                        value={addressesForm.senderAddress}
+                      />
+                      {typeServiceForm.type === "насрочен час" && (
+                        <>
+                          <div className="flex justify-between p-2 border-l border-r border-b border-neutral-content px-5">
+                            <div className="flex gap-3 max-sm:gap-1">
+                              <input
+                                type="radio"
+                                name="shop"
+                                className="radio radio-primary radio-sm"
+                                onChange={(e: any) =>
+                                  setAddressesForm((form: any) => ({
+                                    ...form,
+                                    senderSendingTime: e.target.checked
+                                      ? "sooner"
+                                      : "",
+                                  }))
+                                }
+                                checked={
+                                  addressesForm.senderSendingTime === "sooner"
+                                }
+                              />
+                              <p className="w-full flex justify-around text-sm max-sm:text-xs">
+                                Възможно най-скоро
+                              </p>
+                            </div>
+                            <div className="flex gap-3 max-sm:gap-1">
+                              <p className="w-full flex justify-around text-sm max-sm:text-xs">
+                                Точен час
+                              </p>
+                              <input
+                                type="radio"
+                                name="shop"
+                                className="radio radio-primary radio-sm"
+                                onChange={(e: any) =>
+                                  setAddressesForm((form: any) => ({
+                                    ...form,
+                                    senderSendingTime: e.target.checked
+                                      ? ""
+                                      : "sooner",
+                                  }))
+                                }
+                                checked={
+                                  addressesForm.senderSendingTime !== "sooner"
+                                }
+                              />
+                            </div>
+                          </div>
+                          {addressesForm.senderSendingTime !== "sooner" && (
+                            <div className="gap-3 flex max-sm:flex-col justify-between p-2 border-l border-r border-b border-neutral-content px-5">
+                              <label className="label w-fit">
+                                <div className="label-text">
+                                  Час за пристигане на адрес на{" "}
+                                  <strong>изпращач</strong>
+                                </div>
+                              </label>
+                              <input
+                                type="time"
+                                className="input flex flex-grow min-w-fit"
+                                onChange={(e: any) => {
+                                  setAddressesForm(e.target.value);
+                                }}
+                                value={addressesForm.senderSendingTime}
+                              />
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </label>
+                    {addressesForm.activateValidators &&
+                      !validators.get("addressesForm.senderAddress")!() && (
+                        <Error errorText="Адреса на изпращача трябва да е между 5 и 100 знака!" />
+                      )}
+                    {addressesForm.activateValidators &&
+                      !validators.get("addressesForm.senderSendingTime")!() && (
+                        <Error
+                          errorText={
+                            "Часът трябва да е след " +
+                            new Date(
+                              currentTime.getTime() + 90 * 60 * 1000
+                            ).getHours() +
+                            ":" +
+                            new Date(
+                              currentTime.getTime() + 90 * 60 * 1000
+                            ).getMinutes() +
+                            "ч !"
+                          }
+                        />
+                      )}
+                  </div>
+                  <div className="btn-group w-full">
+                    <button
+                      className="btn w-1/2"
+                      type="button"
+                      onClick={() => setStep(step - 1)}
+                    >
+                      <FontAwesomeIcon icon={faCaretLeft} /> Върни Назад
+                    </button>
+                    <button
+                      className={
+                        "btn w-1/2 btn-primary " +
+                        (!validators.get("addresses")!()
+                          ? "active:bg-red-500"
+                          : "")
                       }
-                      value={addressesForm.senderAddress}
-                    />
-                    {typeServiceForm.type === "насрочен час" && (
-                      <>
-                        <div className="flex justify-between p-2 border-l border-r border-b border-neutral-content px-5">
-                          <div className="flex gap-3 max-sm:gap-1">
-                            <input
-                              type="radio"
-                              name="shop"
-                              className="radio radio-primary radio-sm"
-                              onChange={(e: any) =>
-                                setAddressesForm((form: any) => ({
-                                  ...form,
-                                  senderSendingTime: e.target.checked
-                                    ? "sooner"
-                                    : "",
-                                }))
-                              }
-                              checked={
-                                addressesForm.senderSendingTime === "sooner"
-                              }
-                            />
-                            <p className="w-full flex justify-around text-sm max-sm:text-xs">
-                              Възможно най-скоро
-                            </p>
-                          </div>
-                          <div className="flex gap-3 max-sm:gap-1">
-                            <p className="w-full flex justify-around text-sm max-sm:text-xs">
-                              Точен час
-                            </p>
-                            <input
-                              type="radio"
-                              name="shop"
-                              className="radio radio-primary radio-sm"
-                              onChange={(e: any) =>
-                                setAddressesForm((form: any) => ({
-                                  ...form,
-                                  senderSendingTime: e.target.checked
-                                    ? ""
-                                    : "sooner",
-                                }))
-                              }
-                              checked={
-                                addressesForm.senderSendingTime !== "sooner"
-                              }
-                            />
-                          </div>
-                        </div>
-                        {addressesForm.senderSendingTime !== "sooner" && (
-                          <div className="gap-3 flex max-sm:flex-col justify-between p-2 border-l border-r border-b border-neutral-content px-5">
-                            <label className="label w-fit">
-                              <div className="label-text">
-                                Час за пристигане на адрес на{" "}
-                                <strong>изпращач</strong>
-                              </div>
-                            </label>
-                            <input
-                              type="datetime-local"
-                              min={currentTime}
-                              className="input flex flex-grow min-w-fit"
-                            />
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </label>
-                  {addressesForm.activateValidators &&
-                    !addressesFormVerifiers.get(
-                      "addressesForm.senderAddress"
-                    )!() && (
-                      <Error errorText="Адреса на изпращача трябва да е между 5 и 100 знака!" />
-                    )}
-                </div>
-                <div className="btn-group w-full">
-                  <button
-                    className="btn w-1/2"
-                    type="button"
-                    onClick={() => setStep(step - 1)}
-                  >
-                    <FontAwesomeIcon icon={faCaretLeft} /> Върни Назад
-                  </button>
-                  <button
-                    className={
-                      "btn w-1/2 btn-primary " +
-                      (!addressesFormVerifiers.get("addresses")!()
-                        ? "active:bg-red-500"
-                        : "")
-                    }
-                  >
-                    Продължи <FontAwesomeIcon icon={faCaretRight} />
-                  </button>
-                </div>
-              </motion.section>
-            </form>
-          )}
+                    >
+                      Продължи <FontAwesomeIcon icon={faCaretRight} />
+                    </button>
+                  </div>
+                </motion.section>
+              </form>
+            )}
         </main>
       </div>
       <Footer />
