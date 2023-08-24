@@ -742,7 +742,7 @@ export default function NewDelivery() {
                             recieverAddress: e.target.value,
                           }))
                         }
-                        value={addressesForm.senderAddress}
+                        value={addressesForm.recieverAddress}
                       />
                       {typeServiceForm.type === "насрочен час" && (
                         <>
