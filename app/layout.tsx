@@ -1,13 +1,12 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { InformationalHeader } from "@/components/InformationalHeader";
 import { ClerkProvider } from "@clerk/nextjs";
 import { SignedOut } from "@clerk/nextjs/app-beta";
 import { SignedIn } from "@clerk/nextjs/app-beta/client";
-import { AuthenticatedHeader } from "@/components/AuthenticatedHeader";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
+import { AuthenticatedHeader, InformationalHeader } from "@/components/Headers";
 config.autoAddCss = false;
 
 const inter = Inter({ subsets: ["latin"] });

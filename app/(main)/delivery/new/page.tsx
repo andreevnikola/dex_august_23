@@ -1,4 +1,5 @@
 "use client";
+import { getCurrentTime, getCurrentTimeToMinutes } from "@/app/config";
 import Footer from "@/components/Footer";
 import {
   faCaretLeft,
@@ -25,6 +26,8 @@ function Error({ errorText = "" }) {
 export default function NewDelivery() {
   const [step, setStep] = useState(1);
   const [reachedStep, setReachedStep] = useState(1);
+  const currentTime = getCurrentTimeToMinutes();
+  // const soonestCallableTime = currentTime.getTime +
 
   const pratkaTypeDescriptions = new Map();
   pratkaTypeDescriptions.set(
@@ -83,8 +86,8 @@ export default function NewDelivery() {
   const verifyServiceForm = () => {
     const verified = serviceFormVerifiers.get("serviceType")!();
     if (verified) {
-      setReachedStep((step) => (step > 2 ? step : 2));
-      setStep(2);
+      setReachedStep((step) => Math.max(step + 1, reachedStep));
+      setStep(step + 1);
       return;
     }
     setTypeServiceForm((service) => ({
@@ -133,12 +136,54 @@ export default function NewDelivery() {
   const verifyRecieverForm = () => {
     const verified = recieverFormVerifiers.get("reciever")!();
     if (verified) {
-      setReachedStep((step) => (step > 3 ? step : 3));
-      setStep(3);
+      setReachedStep((step) => Math.max(step + 1, reachedStep));
+      setStep(step + 1);
       return;
     }
     setRecieverForm((reciever) => ({
       ...reciever,
+      activateValidators: true,
+    }));
+  };
+
+  const [addressesForm, setAddressesForm] = useState({
+    senderAddress: "",
+    senderSendingTime: "sooner",
+    recieverAddress: "",
+    recieverRecievingTime: "sooner",
+    activateValidators: false,
+  });
+  const addressesFormVerifiers = new Map([
+    [
+      "addressesForm.senderAddress",
+      () =>
+        addressesForm.senderAddress &&
+        addressesForm.senderAddress.length > 5 &&
+        addressesForm.senderAddress.length < 100,
+    ],
+    [
+      "addresses",
+      () => {
+        let failed = false;
+        addressesFormVerifiers.forEach((verifier, key) => {
+          if (key != "addresses" && !verifier()) {
+            failed = true;
+            return;
+          }
+        });
+        return !failed;
+      },
+    ],
+  ]);
+  const verifyAddressesForm = () => {
+    const verified = addressesFormVerifiers.get("addresses")!();
+    if (verified) {
+      setReachedStep((step) => Math.max(step + 1, reachedStep));
+      setStep(step + 1);
+      return;
+    }
+    setAddressesForm((addresses) => ({
+      ...addresses,
       activateValidators: true,
     }));
   };
@@ -172,7 +217,9 @@ export default function NewDelivery() {
             ["payments", 4],
           ]
     );
-  });
+  }, [typeServiceForm]);
+
+  console.log(currentTime);
 
   return (
     <>
@@ -315,7 +362,7 @@ export default function NewDelivery() {
                         <span className="w-full text-center flex justify-around">
                           Предложете магазин
                         </span>
-                        <div className="flex justify-between p-2 border-l border-r border-neutral-content px-5">
+                        <div className="flex justify-between p-2 border-l border-r border-b border-neutral-content px-5">
                           <div className="flex gap-3 max-sm:gap-1">
                             <input
                               type="radio"
@@ -528,51 +575,127 @@ export default function NewDelivery() {
             </form>
           )}
           {steps.has("addresses") && step === steps.get("addresses") && (
-            <>
-              <div className="form-control">
-                <label className="input-group input-group-vertical">
-                  <span className="flex w-full justify-center gap-1">
-                    Информация за <strong className="w-fit">изпращач</strong>
-                  </span>
-                  <input
-                    type="text"
-                    placeholder="Адрес на изпращача"
-                    className="input input-bordered"
-                  />
-                  <div className="flex justify-between p-2 border-l border-r border-b border-neutral-content px-5">
-                    <div className="flex gap-3 max-sm:gap-1">
-                      <input
-                        type="radio"
-                        name="shop"
-                        className="radio radio-primary radio-sm"
-                        checked
-                      />
-                      <p className="w-full flex justify-around text-sm max-sm:text-xs">
-                        Възможно най скоро
-                      </p>
-                    </div>
-                    <div className="flex gap-3 max-sm:gap-1">
-                      <p className="w-full flex justify-around text-sm max-sm:text-xs">
-                        Точен час
-                      </p>
-                      <input
-                        type="radio"
-                        name="shop"
-                        className="radio radio-primary radio-sm"
-                      />
-                    </div>
-                  </div>
-                  <div className="gap-3 flex justify-between p-2 border-l border-r border-b border-neutral-content px-5">
-                    <label className="label w-fit">
-                      <div className="label-text">
-                        Час за пристигане на адрес на <strong>изпращач</strong>
-                      </div>
-                    </label>
-                    <input type="time" className="input flex flex-grow" />
-                  </div>
-                </label>
-              </div>
-            </>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                verifyAddressesForm();
+              }}
+            >
+              <motion.section
+                initial={{ opacity: 0, x: 200 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -200 }}
+                className="flex flex-col gap-2"
+              >
+                <div className="form-control">
+                  <label className="input-group input-group-vertical">
+                    <span className="flex w-full justify-center gap-1">
+                      Информация за <strong className="w-fit">изпращач</strong>
+                    </span>
+                    <input
+                      type="text"
+                      placeholder="Адрес на изпращача"
+                      className="input input-bordered"
+                      onChange={(e: any) =>
+                        setAddressesForm((form: any) => ({
+                          ...form,
+                          senderAddress: e.target.value,
+                        }))
+                      }
+                      value={addressesForm.senderAddress}
+                    />
+                    {typeServiceForm.type === "насрочен час" && (
+                      <>
+                        <div className="flex justify-between p-2 border-l border-r border-b border-neutral-content px-5">
+                          <div className="flex gap-3 max-sm:gap-1">
+                            <input
+                              type="radio"
+                              name="shop"
+                              className="radio radio-primary radio-sm"
+                              onChange={(e: any) =>
+                                setAddressesForm((form: any) => ({
+                                  ...form,
+                                  senderSendingTime: e.target.checked
+                                    ? "sooner"
+                                    : "",
+                                }))
+                              }
+                              checked={
+                                addressesForm.senderSendingTime === "sooner"
+                              }
+                            />
+                            <p className="w-full flex justify-around text-sm max-sm:text-xs">
+                              Възможно най-скоро
+                            </p>
+                          </div>
+                          <div className="flex gap-3 max-sm:gap-1">
+                            <p className="w-full flex justify-around text-sm max-sm:text-xs">
+                              Точен час
+                            </p>
+                            <input
+                              type="radio"
+                              name="shop"
+                              className="radio radio-primary radio-sm"
+                              onChange={(e: any) =>
+                                setAddressesForm((form: any) => ({
+                                  ...form,
+                                  senderSendingTime: e.target.checked
+                                    ? ""
+                                    : "sooner",
+                                }))
+                              }
+                              checked={
+                                addressesForm.senderSendingTime !== "sooner"
+                              }
+                            />
+                          </div>
+                        </div>
+                        {addressesForm.senderSendingTime !== "sooner" && (
+                          <div className="gap-3 flex max-sm:flex-col justify-between p-2 border-l border-r border-b border-neutral-content px-5">
+                            <label className="label w-fit">
+                              <div className="label-text">
+                                Час за пристигане на адрес на{" "}
+                                <strong>изпращач</strong>
+                              </div>
+                            </label>
+                            <input
+                              type="datetime-local"
+                              min={currentTime}
+                              className="input flex flex-grow min-w-fit"
+                            />
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </label>
+                  {addressesForm.activateValidators &&
+                    !addressesFormVerifiers.get(
+                      "addressesForm.senderAddress"
+                    )!() && (
+                      <Error errorText="Адреса на изпращача трябва да е между 5 и 100 знака!" />
+                    )}
+                </div>
+                <div className="btn-group w-full">
+                  <button
+                    className="btn w-1/2"
+                    type="button"
+                    onClick={() => setStep(step - 1)}
+                  >
+                    <FontAwesomeIcon icon={faCaretLeft} /> Върни Назад
+                  </button>
+                  <button
+                    className={
+                      "btn w-1/2 btn-primary " +
+                      (!addressesFormVerifiers.get("addresses")!()
+                        ? "active:bg-red-500"
+                        : "")
+                    }
+                  >
+                    Продължи <FontAwesomeIcon icon={faCaretRight} />
+                  </button>
+                </div>
+              </motion.section>
+            </form>
           )}
         </main>
       </div>
