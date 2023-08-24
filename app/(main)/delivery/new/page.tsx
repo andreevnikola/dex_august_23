@@ -4,7 +4,10 @@ import Footer from "@/components/Footer";
 import {
   faCaretLeft,
   faCaretRight,
+  faClock,
+  faHandHoldingDollar,
   faInfo,
+  faSignsPost,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { motion } from "framer-motion";
@@ -79,18 +82,18 @@ export default function NewDelivery() {
     // ====================================
     // === RECIEVER FORM VALIDATORS ===
     [
-      "recieverForm.phone",
+      "reciever.phone",
       () =>
         recieverForm.phone?.length === 8 || recieverForm.phone?.length === 9,
     ],
     [
-      "recieverForm.description",
+      "reciever.description",
       () =>
         recieverForm.description.length > 15 &&
         recieverForm.description.length < 250,
     ],
     [
-      "recieverForm.title",
+      "reciever.title",
       () => recieverForm.title.length > 5 && recieverForm.title.length < 30,
     ],
     [
@@ -98,7 +101,7 @@ export default function NewDelivery() {
       () => {
         let failed = false;
         validators.forEach((verifier, key) => {
-          if (key.startsWith("recieverForm.") && !verifier()) {
+          if (key.startsWith("reciever.") && !verifier()) {
             failed = true;
             return;
           }
@@ -109,14 +112,14 @@ export default function NewDelivery() {
     // ================================
     // === ADDRESSES FORM VALIDATORS ===
     [
-      "addressesForm.senderAddress",
+      "addresses.senderAddress",
       () =>
         addressesForm.senderAddress &&
         addressesForm.senderAddress.length > 5 &&
         addressesForm.senderAddress.length < 100,
     ],
     [
-      "addressesForm.senderSendingTime",
+      "addresses.senderSendingTime",
       () =>
         addressesForm.senderSendingTime &&
         (addressesForm.senderSendingTime === "sooner" ||
@@ -126,14 +129,14 @@ export default function NewDelivery() {
               currentTime.getHours() * 60 + currentTime.getMinutes() + 90)),
     ],
     [
-      "addressesForm.recieverAddress",
+      "addresses.recieverAddress",
       () =>
         addressesForm.recieverAddress &&
         addressesForm.recieverAddress.length > 5 &&
         addressesForm.recieverAddress.length < 100,
     ],
     [
-      "addressesForm.recieverRecievingTime",
+      "addresses.recieverRecievingTime",
       () =>
         addressesForm.recieverRecievingTime &&
         (addressesForm.recieverRecievingTime === "sooner" ||
@@ -147,7 +150,7 @@ export default function NewDelivery() {
       () => {
         let failed = false;
         validators.forEach((verifier, key) => {
-          if (key.startsWith("addressesForm.") && !verifier()) {
+          if (key.startsWith("addresses.") && !verifier()) {
             failed = true;
             return;
           }
@@ -156,6 +159,23 @@ export default function NewDelivery() {
       },
     ],
     // =================================
+    [
+      "everything",
+      () => {
+        let failed = false;
+        validators.forEach((verifier, key) => {
+          if (
+            key.includes(".") &&
+            !verifier() &&
+            steps.current.has(key.split(".")[0])
+          ) {
+            failed = true;
+            return;
+          }
+        });
+        return !failed;
+      },
+    ],
   ]);
 
   const [typeServiceForm, setTypeServiceForm] = useState({
@@ -218,6 +238,8 @@ export default function NewDelivery() {
       activateValidators: true,
     }));
   };
+
+  const [acceptLegally, setAcceptLegally] = useState(false);
 
   let steps = useRef(
     new Map([
@@ -542,7 +564,7 @@ export default function NewDelivery() {
                         value={recieverForm.phone}
                       />
                     </label>
-                    {!validators.get("recieverForm.phone")!() &&
+                    {!validators.get("reciever.phone")!() &&
                       recieverForm.activateValidators && (
                         <Error errorText="Моля въведете валиден телевизиран номер!" />
                       )}
@@ -576,11 +598,11 @@ export default function NewDelivery() {
                         value={recieverForm.description}
                       ></textarea>
                     </label>
-                    {!validators.get("recieverForm.title")!() &&
+                    {!validators.get("reciever.title")!() &&
                       recieverForm.activateValidators && (
                         <Error errorText="Заглавието на пратката трябва да е между 5 и 30 знака!" />
                       )}
-                    {!validators.get("recieverForm.description")!() &&
+                    {!validators.get("reciever.description")!() &&
                       recieverForm.activateValidators && (
                         <Error errorText="Описанието на пратката трябва да е между 15 и 250 знака!" />
                       )}
@@ -710,11 +732,11 @@ export default function NewDelivery() {
                       )}
                     </label>
                     {addressesForm.activateValidators &&
-                      !validators.get("addressesForm.senderAddress")!() && (
+                      !validators.get("addresses.senderAddress")!() && (
                         <Error errorText="Адреса на изпращача трябва да е между 5 и 100 знака!" />
                       )}
                     {addressesForm.activateValidators &&
-                      !validators.get("addressesForm.senderSendingTime")!() && (
+                      !validators.get("addresses.senderSendingTime")!() && (
                         <Error
                           errorText={
                             "Часът трябва да е след " +
@@ -821,13 +843,11 @@ export default function NewDelivery() {
                       )}
                     </label>
                     {addressesForm.activateValidators &&
-                      !validators.get("addressesForm.recieverAddress")!() && (
+                      !validators.get("addresses.recieverAddress")!() && (
                         <Error errorText="Адреса на получателя трябва да е между 5 и 100 знака!" />
                       )}
                     {addressesForm.activateValidators &&
-                      !validators.get(
-                        "addressesForm.recieverRecievingTime"
-                      )!() && (
+                      !validators.get("addresses.recieverRecievingTime")!() && (
                         <Error
                           errorText={
                             "Часът трябва да е след " +
@@ -864,6 +884,71 @@ export default function NewDelivery() {
                   </div>
                 </motion.section>
               </form>
+            )}
+          {steps.current.has("payments") &&
+            step === steps.current.get("payments") && (
+              <motion.section
+                initial={{ opacity: 0, x: 200 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -200 }}
+                className="flex flex-col gap-2"
+              >
+                <h1 className="text-center font-sans text-xl">
+                  ЗАПЛАЩАНЕ ПОД ФОРМА НА{" "}
+                  <strong className="font-extrabold">НАЛОЖЕН ПЛАТЕЖ</strong>!
+                </h1>
+                <div className="stats shadow">
+                  <div className="stat">
+                    <div className="stat-figure text-secondary">
+                      <FontAwesomeIcon icon={faSignsPost} size="2x" />
+                    </div>
+                    <div className="stat-title">Дистанция</div>
+                    <div className="stat-value">5км</div>
+                    <div className="stat-desc">от т. А до т. Б</div>
+                  </div>
+
+                  <div className="stat">
+                    <div className="stat-figure text-secondary">
+                      <FontAwesomeIcon icon={faHandHoldingDollar} size="2x" />
+                    </div>
+                    <div className="stat-title">Очаквана цена</div>
+                    <div className="stat-value">11.5 лв</div>
+                    <div className="stat-desc">±7.5% от финалната</div>
+                  </div>
+
+                  <div className="stat">
+                    <div className="stat-figure text-secondary">
+                      <FontAwesomeIcon icon={faClock} size="2x" />
+                    </div>
+                    <div className="stat-title">Очаквано време</div>
+                    <div className="stat-value">22 мин.</div>
+                    <div className="stat-desc">±7.5% от финалното</div>
+                  </div>
+                </div>
+                <div className="form-control">
+                  <label className="cursor-pointer label flex justify-start gap-5">
+                    <input
+                      type="checkbox"
+                      className="checkbox checkbox-info"
+                      checked={acceptLegally}
+                      onChange={(e: any) => setAcceptLegally(e.target.checked)}
+                    />
+                    <span className="label-text text-lg text-left">
+                      Съгласен съм с{" "}
+                      <a href="/informational/legal" className="link link-info">
+                        общите условия
+                      </a>{" "}
+                      за изпълнение на доставка!
+                    </span>
+                  </label>
+                </div>
+                <button
+                  className="btn btn-block btn-primary"
+                  disabled={!validators.get("everything")!() || !acceptLegally}
+                >
+                  <strong>ПОТВЪРДИ ЗАЯВКА</strong>
+                </button>
+              </motion.section>
             )}
         </main>
       </div>
