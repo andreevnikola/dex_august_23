@@ -8,7 +8,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 function Error({ errorText = "" }) {
   return (
@@ -123,7 +123,7 @@ export default function NewDelivery() {
           (addressesForm.senderSendingTime.includes(":") &&
             parseInt(addressesForm.senderSendingTime.split(":")[0]) * 60 +
               parseInt(addressesForm.senderSendingTime.split(":")[1]) >
-              currentTime.getHours() * 60 + currentTime.getMinutes() + 120)),
+              currentTime.getHours() * 60 + currentTime.getMinutes() + 90)),
     ],
     [
       "addressesForm.recieverAddress",
@@ -140,7 +140,7 @@ export default function NewDelivery() {
           (addressesForm.recieverRecievingTime.includes(":") &&
             parseInt(addressesForm.recieverRecievingTime.split(":")[0]) * 60 +
               parseInt(addressesForm.recieverRecievingTime.split(":")[1]) >
-              currentTime.getHours() * 60 + currentTime.getMinutes() + 90)),
+              currentTime.getHours() * 60 + currentTime.getMinutes() + 120)),
     ],
     [
       "addresses",
@@ -298,6 +298,10 @@ export default function NewDelivery() {
                 (step === steps.current.get("addresses") ? "tab-active " : "") +
                 (reachedStep < steps.current.get("addresses")!
                   ? "text-base-300 "
+                  : "") +
+                (!validators.get("addresses")!() &&
+                reachedStep >= steps.current.get("addresses")!
+                  ? "text-red-500 "
                   : "")
               }
               onClick={() =>
