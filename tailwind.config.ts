@@ -15,6 +15,7 @@ const config: Config = {
       },
       colors: {
         "transparenty-base-100": "hsl(var(--b1) / 0.45)",
+        "transparenty-base-200": "hsl(var(--b2) / 0.60)",
       },
     },
   },

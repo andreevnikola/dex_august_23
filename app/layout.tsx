@@ -1,12 +1,14 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { ClerkProvider } from "@clerk/nextjs";
+import { ClerkLoaded, ClerkLoading, ClerkProvider } from "@clerk/nextjs";
 import { SignedOut } from "@clerk/nextjs/app-beta";
 import { SignedIn } from "@clerk/nextjs/app-beta/client";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { AuthenticatedHeader, InformationalHeader } from "@/components/Headers";
+import { Suspense } from "react";
+import PageLoading from "./loading";
 config.autoAddCss = false;
 
 const inter = Inter({ subsets: ["latin"] });
@@ -26,13 +28,18 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" data-theme="cupcake">
         <body className={inter.className + " bg-base-100"}>
-          <SignedOut>
-            <InformationalHeader />
-          </SignedOut>
-          <SignedIn>
-            <AuthenticatedHeader />
-          </SignedIn>
-          {children}
+          <ClerkLoading>
+            <PageLoading />
+          </ClerkLoading>
+          <ClerkLoaded>
+            <SignedOut>
+              <InformationalHeader />
+            </SignedOut>
+            <SignedIn>
+              <AuthenticatedHeader />
+            </SignedIn>
+            <Suspense fallback={<PageLoading />}>{children}</Suspense>
+          </ClerkLoaded>
         </body>
       </html>
     </ClerkProvider>
