@@ -123,6 +123,23 @@ export default function NewDelivery() {
           (addressesForm.senderSendingTime.includes(":") &&
             parseInt(addressesForm.senderSendingTime.split(":")[0]) * 60 +
               parseInt(addressesForm.senderSendingTime.split(":")[1]) >
+              currentTime.getHours() * 60 + currentTime.getMinutes() + 120)),
+    ],
+    [
+      "addressesForm.recieverAddress",
+      () =>
+        addressesForm.recieverAddress &&
+        addressesForm.recieverAddress.length > 5 &&
+        addressesForm.recieverAddress.length < 100,
+    ],
+    [
+      "addressesForm.recieverRecievingTime",
+      () =>
+        addressesForm.recieverRecievingTime &&
+        (addressesForm.recieverRecievingTime === "sooner" ||
+          (addressesForm.recieverRecievingTime.includes(":") &&
+            parseInt(addressesForm.recieverRecievingTime.split(":")[0]) * 60 +
+              parseInt(addressesForm.recieverRecievingTime.split(":")[1]) >
               currentTime.getHours() * 60 + currentTime.getMinutes() + 90)),
     ],
     [
@@ -624,7 +641,7 @@ export default function NewDelivery() {
                             <div className="flex gap-3 max-sm:gap-1">
                               <input
                                 type="radio"
-                                name="shop"
+                                name="sender"
                                 className="radio radio-primary radio-sm"
                                 onChange={(e: any) =>
                                   setAddressesForm((form: any) => ({
@@ -648,7 +665,7 @@ export default function NewDelivery() {
                               </p>
                               <input
                                 type="radio"
-                                name="shop"
+                                name="sender"
                                 className="radio radio-primary radio-sm"
                                 onChange={(e: any) =>
                                   setAddressesForm((form: any) => ({
@@ -676,7 +693,10 @@ export default function NewDelivery() {
                                 type="time"
                                 className="input flex flex-grow min-w-fit"
                                 onChange={(e: any) => {
-                                  setAddressesForm(e.target.value);
+                                  setAddressesForm((form: any) => ({
+                                    ...form,
+                                    senderSendingTime: e.target.value,
+                                  }));
                                 }}
                                 value={addressesForm.senderSendingTime}
                               />
@@ -700,6 +720,119 @@ export default function NewDelivery() {
                             ":" +
                             new Date(
                               currentTime.getTime() + 90 * 60 * 1000
+                            ).getMinutes() +
+                            "ч !"
+                          }
+                        />
+                      )}
+                  </div>
+                  <div className="form-control">
+                    <label className="input-group input-group-vertical">
+                      <span className="flex w-full justify-center gap-1">
+                        Информация за{" "}
+                        <strong className="w-fit">получател</strong>
+                      </span>
+                      <input
+                        type="text"
+                        placeholder="Адрес на получателя"
+                        className="input input-bordered"
+                        onChange={(e: any) =>
+                          setAddressesForm((form: any) => ({
+                            ...form,
+                            recieverAddress: e.target.value,
+                          }))
+                        }
+                        value={addressesForm.senderAddress}
+                      />
+                      {typeServiceForm.type === "насрочен час" && (
+                        <>
+                          <div className="flex justify-between p-2 border-l border-r border-b border-neutral-content px-5">
+                            <div className="flex gap-3 max-sm:gap-1">
+                              <input
+                                type="radio"
+                                name="reciever"
+                                className="radio radio-primary radio-sm"
+                                onChange={(e: any) =>
+                                  setAddressesForm((form: any) => ({
+                                    ...form,
+                                    recieverRecievingTime: e.target.checked
+                                      ? "sooner"
+                                      : "",
+                                  }))
+                                }
+                                checked={
+                                  addressesForm.recieverRecievingTime ===
+                                  "sooner"
+                                }
+                              />
+                              <p className="w-full flex justify-around text-sm max-sm:text-xs">
+                                Възможно най-скоро
+                              </p>
+                            </div>
+                            <div className="flex gap-3 max-sm:gap-1">
+                              <p className="w-full flex justify-around text-sm max-sm:text-xs">
+                                Точен час
+                              </p>
+                              <input
+                                type="radio"
+                                name="reciever"
+                                className="radio radio-primary radio-sm"
+                                onChange={(e: any) =>
+                                  setAddressesForm((form: any) => ({
+                                    ...form,
+                                    recieverRecievingTime: e.target.checked
+                                      ? ""
+                                      : "sooner",
+                                  }))
+                                }
+                                checked={
+                                  addressesForm.recieverRecievingTime !==
+                                  "sooner"
+                                }
+                              />
+                            </div>
+                          </div>
+                          {addressesForm.recieverRecievingTime !== "sooner" && (
+                            <div className="gap-3 flex max-sm:flex-col justify-between p-2 border-l border-r border-b border-neutral-content px-5">
+                              <label className="label w-fit">
+                                <div className="label-text">
+                                  Час за пристигане на адрес на{" "}
+                                  <strong>получател</strong>
+                                </div>
+                              </label>
+                              <input
+                                type="time"
+                                className="input flex flex-grow min-w-fit"
+                                onChange={(e: any) => {
+                                  setAddressesForm((form: any) => ({
+                                    ...form,
+                                    recieverRecievingTime: e.target.value,
+                                  }));
+                                }}
+                                value={addressesForm.recieverRecievingTime}
+                              />
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </label>
+                    {addressesForm.activateValidators &&
+                      !validators.get("addressesForm.recieverAddress")!() && (
+                        <Error errorText="Адреса на получателя трябва да е между 5 и 100 знака!" />
+                      )}
+                    {addressesForm.activateValidators &&
+                      !validators.get(
+                        "addressesForm.recieverRecievingTime"
+                      )!() && (
+                        <Error
+                          errorText={
+                            "Часът трябва да е след " +
+                            new Date(
+                              currentTime.getTime() + 120 * 60 * 1000
+                            ).getHours() +
+                            ":" +
+                            new Date(
+                              currentTime.getTime() + 120 * 60 * 1000
                             ).getMinutes() +
                             "ч !"
                           }
