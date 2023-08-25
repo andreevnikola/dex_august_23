@@ -100,6 +100,7 @@ export default function Actions() {
           <div className="hero min-h-screen bg-base-200">
             <div className="hero-content flex-col lg:flex-row">
               <iframe
+                loading="lazy"
                 className="flex rounded-lg shadow-2xl h-[320px] lg:max-w-[50%] w-full max-sm:h-[220px]"
                 src="https://www.youtube.com/embed/dVsiusLQy5Q"
                 title="A look at what’s next for AI and Google Search | Google I/O 2023"

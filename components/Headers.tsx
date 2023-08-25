@@ -1,5 +1,6 @@
 import { SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
+import Image from "next/image";
 
 export const InformationalHeader = () => {
   return (
@@ -45,7 +46,9 @@ export const InformationalHeader = () => {
             </ul>
           </div>
           <Link href="/" className="btn btn-ghost normal-case text-xl px-2.5">
-            <img
+            <Image
+              height={50}
+              width={122}
               src="images/brand/logo.png"
               alt="DEX logo"
               className="h-[50px]"
@@ -126,7 +129,9 @@ export const AuthenticatedHeader = () => {
             </ul>
           </div>
           <Link href="/" className="btn btn-ghost normal-case text-xl px-2.5">
-            <img
+            <Image
+              height={50}
+              width={122}
               src="/images/brand/logo.png"
               alt="DEX logo"
               className="h-[50px]"

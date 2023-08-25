@@ -1,13 +1,16 @@
 import { SignUpButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import Footer from "./Footer";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function LandingPage() {
   return (
     <>
       <main className="hero min-h-screen bg-base-200">
         <div className="hero-content flex-col lg:flex-row">
-          <img
+          <Image
+            height={377}
+            width={512}
             alt="stock photo"
             src="/images/stock/istockphoto-1221101939-612x612.jpg"
             className="max-w-lg w-full rounded-lg shadow-2xl"
