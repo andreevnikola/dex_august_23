@@ -4,9 +4,11 @@ export default authMiddleware({
   publicRoutes: [
     "/",
     "/:locale/sign-in",
-    "/pricing",
-    "/aboutus",
-    "/howitworks",
+    "/:locale/sign-up",
+    "/informational",
+    "/informational/pricing",
+    "/informational/aboutus",
+    "/informational/howitworks",
   ],
 });
 
