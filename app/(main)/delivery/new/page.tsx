@@ -1,6 +1,8 @@
 "use client";
 import { getCurrentTime } from "@/app/config";
 import Footer from "@/components/Footer";
+import { supabaseClient } from "@/utils/supabaseClient";
+import { useAuth } from "@clerk/nextjs";
 import {
   faCaretLeft,
   faCaretRight,
@@ -266,6 +268,37 @@ export default function NewDelivery() {
           ]
     );
   }, [typeServiceForm]);
+
+  const { userId, getToken } = useAuth();
+  const SaveDelivery = async () => {
+    const token = await getToken({ template: "supabase" });
+    const supabase = await supabaseClient(token!);
+    console.log(recieverForm.phone);
+    const deliveries = await supabase.from("deliveries").insert({
+      // sender: userId,
+      reciever:
+        typeServiceForm.type === "купи"
+          ? recieverForm.phoneStarter + recieverForm.phone
+          : null,
+      sender_address: addressesForm.senderAddress,
+      reciever_address: addressesForm.recieverAddress,
+      delivery_type: typeServiceForm.type,
+      wanted_products: typeServiceForm.description,
+      package_title:
+        typeServiceForm.type === "купи" ? recieverForm.title : null,
+      package_description:
+        typeServiceForm.type === "купи" ? recieverForm.description : null,
+      receiving_time:
+        typeServiceForm.type === "насрочен час"
+          ? addressesForm.recieverRecievingTime
+          : null,
+      sending_time:
+        typeServiceForm.type === "насрочен час"
+          ? addressesForm.senderSendingTime
+          : null,
+    });
+    console.log(deliveries);
+  };
 
   return (
     <>
@@ -958,6 +991,7 @@ export default function NewDelivery() {
                 <button
                   className="btn btn-block btn-primary"
                   disabled={!validators.get("everything")!() || !acceptLegally}
+                  onClick={SaveDelivery}
                 >
                   <strong>ПОТВЪРДИ ЗАЯВКА</strong>
                 </button>
