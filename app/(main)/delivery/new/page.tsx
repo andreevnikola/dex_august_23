@@ -51,11 +51,10 @@ export default function NewDelivery() {
     [
       "serviceType.description",
       () =>
-        !(
-          typeServiceForm.type === "купи" &&
-          (typeServiceForm.description.length < 15 ||
-            typeServiceForm.description.length > 250)
-        ),
+        typeServiceForm.type !== "купи" ||
+        !typeServiceForm.description ||
+        (typeServiceForm.description.length > 10 &&
+          typeServiceForm.description.length < 250),
     ],
     [
       "serviceType.shop",
@@ -89,12 +88,15 @@ export default function NewDelivery() {
     [
       "reciever.description",
       () =>
-        recieverForm.description.length > 15 &&
-        recieverForm.description.length < 250,
+        !recieverForm.description ||
+        (recieverForm.description.length > 10 &&
+          recieverForm.description.length < 250),
     ],
     [
       "reciever.title",
-      () => recieverForm.title.length > 5 && recieverForm.title.length < 30,
+      () =>
+        !recieverForm.title ||
+        (recieverForm.title.length > 5 && recieverForm.title.length < 30),
     ],
     [
       "reciever",
@@ -498,7 +500,7 @@ export default function NewDelivery() {
                       </label>
                       {!validators.get("serviceType.description")!() &&
                         typeServiceForm.activateValidators && (
-                          <Error errorText="Описанието трябва да е между 15 и 250 знака" />
+                          <Error errorText="Описанието трябва да е между 10 и 250 знака" />
                         )}
                     </motion.div>
                   </>
@@ -604,7 +606,7 @@ export default function NewDelivery() {
                       )}
                     {!validators.get("reciever.description")!() &&
                       recieverForm.activateValidators && (
-                        <Error errorText="Описанието на пратката трябва да е между 15 и 250 знака!" />
+                        <Error errorText="Описанието на пратката трябва да е между 10 и 250 знака!" />
                       )}
                   </div>
                   <div className="btn-group w-full">
