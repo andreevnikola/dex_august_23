@@ -9,6 +9,7 @@ import "@fortawesome/fontawesome-svg-core/styles.css";
 import { AuthenticatedHeader, InformationalHeader } from "@/components/Headers";
 import { Suspense } from "react";
 import PageLoading from "./loading";
+import Footer from "@/components/Footer";
 config.autoAddCss = false;
 
 const inter = Inter({ subsets: ["latin"] });
@@ -39,6 +40,7 @@ export default function RootLayout({
               <AuthenticatedHeader />
             </SignedIn>
             <Suspense fallback={<PageLoading />}>{children}</Suspense>
+            <Footer />
           </ClerkLoaded>
         </body>
       </html>

@@ -49,7 +49,7 @@ export const InformationalHeader = () => {
             <Image
               height={50}
               width={122}
-              src="images/brand/logo.png"
+              src="/images/brand/logo.png"
               alt="DEX logo"
               className="h-[50px]"
             />
@@ -162,7 +162,7 @@ export const AuthenticatedHeader = () => {
           </div>
         </nav>
       </header>
-      <div className="w-full h-[65px]"></div>
+      <div className="w-full h-[20px]"></div>
     </>
   );
 };

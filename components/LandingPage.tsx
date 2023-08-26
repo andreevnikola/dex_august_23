@@ -1,5 +1,4 @@
 import { SignUpButton, SignedIn, SignedOut } from "@clerk/nextjs";
-import Footer from "./Footer";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -40,7 +39,6 @@ export default function LandingPage() {
           </div>
         </div>
       </main>
-      <Footer />
     </>
   );
 }

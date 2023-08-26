@@ -1,6 +1,5 @@
 "use client";
 import { getCurrentTime } from "@/app/config";
-import Footer from "@/components/Footer";
 import { supabaseClient } from "@/utils/supabaseClient";
 import { useAuth } from "@clerk/nextjs";
 import {
@@ -8,7 +7,6 @@ import {
   faCaretRight,
   faClock,
   faHandHoldingDollar,
-  faInfo,
   faSignsPost,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -999,7 +997,6 @@ export default function NewDelivery() {
             )}
         </main>
       </div>
-      <Footer />
     </>
   );
 }

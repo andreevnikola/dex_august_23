@@ -10,7 +10,7 @@ export default authMiddleware({
     "/informational/aboutus",
     "/informational/howitworks",
   ],
-  ignoredRoutes: ["/((?!api|trpc))(_next|.+..+)(.*)", "/api/webhooks/clerk"],
+  ignoredRoutes: ["/api/webhooks/clerk"],
 });
 
 export const config = {
