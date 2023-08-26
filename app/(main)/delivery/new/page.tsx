@@ -275,17 +275,18 @@ export default function NewDelivery() {
     const deliveries = await supabase.from("deliveries").insert({
       // sender: userId,
       reciever:
-        typeServiceForm.type === "купи"
+        typeServiceForm.type !== "купи"
           ? recieverForm.phoneStarter + recieverForm.phone
           : null,
       sender_address: addressesForm.senderAddress,
       reciever_address: addressesForm.recieverAddress,
       delivery_type: typeServiceForm.type,
-      wanted_products: typeServiceForm.description,
+      wanted_products:
+        typeServiceForm.type == "купи" ? typeServiceForm.description : null,
       package_title:
-        typeServiceForm.type === "купи" ? recieverForm.title : null,
+        typeServiceForm.type !== "купи" ? recieverForm.title : null,
       package_description:
-        typeServiceForm.type === "купи" ? recieverForm.description : null,
+        typeServiceForm.type !== "купи" ? recieverForm.description : null,
       receiving_time:
         typeServiceForm.type === "насрочен час"
           ? addressesForm.recieverRecievingTime
@@ -303,7 +304,7 @@ export default function NewDelivery() {
       <div className="w-full flex min-h-screen justify-around items-center">
         <main className="w-full p-6 h-fit max-w-4xl relative -top-12 flex flex-col gap-3">
           <h1 className="text-neutral-focus font-extrabold text-4xl text-center mb-5 font-mono">
-            Нова заявка:
+            Нова заявка
           </h1>
           <div className="tabs w-full sm:text-8xl">
             <a
