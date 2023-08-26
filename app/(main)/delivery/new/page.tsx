@@ -278,7 +278,7 @@ export default function NewDelivery() {
           <div className="tabs w-full sm:text-8xl">
             <a
               className={
-                "tab tab-lifted max-sm:text-[0.6rem] " +
+                "tab tab-lifted max-sm:text-[0.5rem] " +
                 (step === steps.current.get("serviceType")
                   ? "tab-active "
                   : "") +
@@ -295,7 +295,7 @@ export default function NewDelivery() {
             {steps.current.has("reciever") && (
               <a
                 className={
-                  "tab tab-lifted max-sm:text-[0.6rem] " +
+                  "tab tab-lifted max-sm:text-[0.5rem] " +
                   (step === steps.current.get("reciever")
                     ? "tab-active "
                     : "") +
@@ -318,7 +318,7 @@ export default function NewDelivery() {
             )}
             <a
               className={
-                "tab tab-lifted max-sm:text-[0.6rem] " +
+                "tab tab-lifted max-sm:text-[0.5rem] " +
                 (step === steps.current.get("addresses") ? "tab-active " : "") +
                 (reachedStep < steps.current.get("addresses")!
                   ? "text-base-300 "
@@ -338,7 +338,7 @@ export default function NewDelivery() {
             </a>
             <a
               className={
-                "tab tab-lifted max-sm:text-[0.6rem] " +
+                "tab tab-lifted max-sm:text-[0.5rem] " +
                 (step === steps.current.get("payments") ? "tab-active " : "") +
                 (step === steps.current.get("payments") ? "tab-active " : "") +
                 (reachedStep < steps.current.get("payments")!
@@ -676,7 +676,13 @@ export default function NewDelivery() {
                                     ...form,
                                     senderSendingTime: e.target.checked
                                       ? "sooner"
-                                      : "",
+                                      : new Date(
+                                          currentTime.getTime() + 95 * 60 * 1000
+                                        ).getHours() +
+                                        ":" +
+                                        new Date(
+                                          currentTime.getTime() + 95 * 60 * 1000
+                                        ).getMinutes(),
                                   }))
                                 }
                                 checked={
@@ -699,7 +705,13 @@ export default function NewDelivery() {
                                   setAddressesForm((form: any) => ({
                                     ...form,
                                     senderSendingTime: e.target.checked
-                                      ? ""
+                                      ? new Date(
+                                          currentTime.getTime() + 95 * 60 * 1000
+                                        ).getHours() +
+                                        ":" +
+                                        new Date(
+                                          currentTime.getTime() + 95 * 60 * 1000
+                                        ).getMinutes()
                                       : "sooner",
                                   }))
                                 }
