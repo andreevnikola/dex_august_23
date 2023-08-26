@@ -36,7 +36,7 @@ export function Action({
 export default function Actions() {
   return (
     <>
-      <div className="bg-base-100 flex w-full flex-row flex-wrap justify-around p-5 gap-7">
+      <div className="bg-base-100 -mt-7 flex w-full flex-row flex-wrap justify-around p-5 gap-7">
         {/* <div className="card max-w-full w-96 bg-base-100 shadow-xl">
       <figure className="px-5 pt-5">
         <FontAwesomeIcon
