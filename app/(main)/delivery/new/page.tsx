@@ -911,7 +911,7 @@ export default function NewDelivery() {
                   ЗАПЛАЩАНЕ ПОД ФОРМА НА{" "}
                   <strong className="font-extrabold">НАЛОЖЕН ПЛАТЕЖ</strong>!
                 </h1>
-                <div className="stats shadow">
+                <div className="stats shadow stats-vertical md:stats-horizontal">
                   <div className="stat">
                     <div className="stat-figure text-secondary">
                       <FontAwesomeIcon icon={faSignsPost} size="2x" />
