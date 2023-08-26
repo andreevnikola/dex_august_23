@@ -52,7 +52,6 @@ export default function NewDelivery() {
       "serviceType.description",
       () =>
         typeServiceForm.type !== "купи" ||
-        !typeServiceForm.description ||
         (typeServiceForm.description.length > 10 &&
           typeServiceForm.description.length < 250),
     ],
