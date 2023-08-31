@@ -5,17 +5,6 @@ import { NextResponse } from "next/server";
 
 const webhookSecret: string = process.env.WEBHOOK_SECRET!;
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_ADMIN_KEY!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  }
-);
-
 const handler = async (req: Request) => {
   const payload = await req.json();
   const headersList = headers();
