@@ -1,43 +1,59 @@
 import { db } from "@/app/_db/prisma";
+import {
+  SignedInAuthObject,
+  SignedOutAuthObject,
+  getAuth,
+} from "@clerk/nextjs/server";
 import { TRPCError, inferAsyncReturnType, initTRPC } from "@trpc/server";
-import * as trpc from "@trpc/server/adapters/express";
-import jwt from "jsonwebtoken";
 
-export const createContext = async ({
-  req,
-  res,
-}: trpc.CreateExpressContextOptions) => {
-  const clientToken = req.headers.authorization?.split(" ")[0];
+interface AuthContext {
+  auth: SignedInAuthObject | SignedOutAuthObject;
+}
 
-  const decoded = clientToken
-    ? jwt.verify(clientToken, process.env.PEM_PUBLIC_KEY!)
-    : null;
-
+export const createInnerTRPCContext = ({ auth }: AuthContext) => {
   return {
-    user: decoded
-      ? await db.user.findUnique({
-          where: {
-            id: decoded?.sub as string,
-          },
-        })
-      : null,
+    auth,
   };
 };
+
+export const createContext = async ({ req, res }: any) => {
+  const { auth } = createInnerTRPCContext({ auth: getAuth(req) });
+  if (!auth) return { auth: null };
+  return {
+    auth,
+  };
+};
+
 type Context = inferAsyncReturnType<typeof createContext>;
 export const t = initTRPC.context<Context>().create();
 
-const isAuthed = t.middleware((opts) => {
-  const { ctx } = opts;
-  if (!ctx.user) {
+const isAuthed = t.middleware(({ ctx, next }) => {
+  if (!ctx.auth) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
-  return opts.next({
+  return next({
     ctx: {
-      user: ctx.user,
+      auth: ctx.auth,
+    },
+  });
+});
+
+const getUserData = t.middleware(async ({ ctx, next }) => {
+  return next({
+    ctx: {
+      auth: ctx.auth,
+      user: await db.user.findUnique({
+        where: {
+          id: ctx.auth!.userId!,
+        },
+      }),
     },
   });
 });
 
 export const router = t.router;
-export const puclicProcedure = t.procedure;
-export const authedProcedure = t.procedure.use(isAuthed);
+export const publicProcedure = t.procedure;
+export const protectedProcedure = t.procedure.use(isAuthed);
+export const authenticatedProcedure = t.procedure
+  .use(isAuthed)
+  .use(getUserData);

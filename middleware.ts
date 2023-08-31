@@ -9,6 +9,7 @@ export default authMiddleware({
     "/informational/pricing",
     "/informational/aboutus",
     "/informational/howitworks",
+    "/api/:rote*",
   ],
   ignoredRoutes: ["/api/webhooks/clerk"],
 });

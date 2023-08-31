@@ -1,6 +1,6 @@
 "use client";
+import { trpc } from "@/app/_trpc/client";
 import { getCurrentTime } from "@/app/config";
-import { useAuth } from "@clerk/nextjs";
 import {
   faCaretLeft,
   faCaretRight,
@@ -33,15 +33,15 @@ export default function NewDelivery() {
 
   const pratkaTypeDescriptions = new Map();
   pratkaTypeDescriptions.set(
-    "пратка",
+    "delivery",
     "Пратка от адрес до адрес | Нормална пратка. От определен от вас адрес, до този на получателя!"
   );
   pratkaTypeDescriptions.set(
-    "купи",
+    "shopForMe",
     "Купи ми | Шофьорът отговорен за изпълнението на поръчката ти ще закупи желаните от теб продукти. Цената не може да надвишава 50лв."
   );
   pratkaTypeDescriptions.set(
-    "насрочен час",
+    "timedDelivery",
     "Пратка с насрочен час | Пратка от адрес до адрес, като може да избереш в колко часа колата да е на адреса на изпращача и в колко на получателя."
   );
 
@@ -50,7 +50,7 @@ export default function NewDelivery() {
     [
       "serviceType.description",
       () =>
-        typeServiceForm.type !== "купи" ||
+        typeServiceForm.type !== "shopForMe" ||
         (typeServiceForm.description.length > 10 &&
           typeServiceForm.description.length < 250),
     ],
@@ -58,7 +58,7 @@ export default function NewDelivery() {
       "serviceType.shop",
       () =>
         !(
-          typeServiceForm.type === "купи" &&
+          typeServiceForm.type === "shopForMe" &&
           typeServiceForm.customShop &&
           (typeServiceForm.shop.length < 5 || typeServiceForm.shop.length > 50)
         ),
@@ -178,7 +178,7 @@ export default function NewDelivery() {
   ]);
 
   const [typeServiceForm, setTypeServiceForm] = useState({
-    type: "пратка",
+    type: "delivery",
     description: "",
     shop: "",
     customShop: false,
@@ -250,7 +250,7 @@ export default function NewDelivery() {
   );
   useEffect(() => {
     steps.current = new Map(
-      typeServiceForm.type === "купи"
+      typeServiceForm.type === "shopForMe"
         ? [
             ["serviceType", 1],
             ["addresses", 2],
@@ -265,34 +265,23 @@ export default function NewDelivery() {
     );
   }, [typeServiceForm]);
 
-  const SaveDelivery = async () => {
-    // const supabase = await supabaseClient();
-    // console.log(recieverForm.phone);
-    // const deliveries = await supabase.from("deliveries").insert({
-    //   // sender: userId,
-    //   reciever:
-    //     typeServiceForm.type !== "купи"
-    //       ? recieverForm.phoneStarter + recieverForm.phone
-    //       : null,
-    //   sender_address: addressesForm.senderAddress,
-    //   receiver_address: addressesForm.recieverAddress,
-    //   delivery_type: typeServiceForm.type,
-    //   wanted_products:
-    //     typeServiceForm.type == "купи" ? typeServiceForm.description : null,
-    //   package_title:
-    //     typeServiceForm.type !== "купи" ? recieverForm.title : null,
-    //   package_description:
-    //     typeServiceForm.type !== "купи" ? recieverForm.description : null,
-    //   receiving_time:
-    //     typeServiceForm.type === "насрочен час"
-    //       ? addressesForm.recieverRecievingTime
-    //       : null,
-    //   sending_time:
-    //     typeServiceForm.type === "насрочен час"
-    //       ? addressesForm.senderSendingTime
-    //       : null,
-    // });
-    // console.log(deliveries);
+  const requestDelivery = trpc.user.delivery.requestDelivery.useMutation();
+  const SaveDelivery = () => {
+    requestDelivery.mutate({
+      senderAddress: addressesForm.senderAddress,
+      receiverAddress: addressesForm.recieverAddress || null,
+      sendingTime: addressesForm.senderSendingTime || null,
+      receivingTime: addressesForm.recieverRecievingTime || null,
+      packageDescription: recieverForm.description || null,
+      packageTitle: recieverForm.title || null,
+      receiverPhone: ((recieverForm.phoneStarter + recieverForm.phone).length >
+      6
+        ? recieverForm.phoneStarter + recieverForm.phone
+        : null) as string,
+      shoppingList: typeServiceForm.description || null,
+      store: typeServiceForm.shop || null,
+      type: typeServiceForm.type as "delivery" | "shopForMe" | "timedDelivery",
+    });
   };
 
   return (
@@ -427,15 +416,17 @@ export default function NewDelivery() {
                       }
                       value={typeServiceForm?.type}
                     >
-                      <option value="пратка">Пратка от адрес до адрес </option>
-                      <option value="насрочен час">
+                      <option value="delivery">
+                        Пратка от адрес до адрес{" "}
+                      </option>
+                      <option value="timedDelivery">
                         Пратка с насрочен час
                       </option>
-                      <option value="купи">Купи ми</option>
+                      <option value="shopForMe">Купи ми</option>
                     </select>
                   </label>
                 </div>
-                {typeServiceForm?.type === "купи" && (
+                {typeServiceForm?.type === "shopForMe" && (
                   <>
                     <motion.div
                       initial={{ opacity: 0, x: 50 }}
@@ -581,7 +572,7 @@ export default function NewDelivery() {
                         </option>
                       </select>
                       <input
-                        type="text"
+                        type="tel"
                         placeholder="896405024"
                         className="input input-bordered input-lg w-full"
                         onChange={(e: any) =>
@@ -690,7 +681,7 @@ export default function NewDelivery() {
                         }
                         value={addressesForm.senderAddress}
                       />
-                      {typeServiceForm.type === "насрочен час" && (
+                      {typeServiceForm.type === "timedDelivery" && (
                         <>
                           <div className="flex justify-between p-2 border-l border-r border-b border-neutral-content px-5">
                             <div className="flex gap-3 max-sm:gap-1">
@@ -811,7 +802,7 @@ export default function NewDelivery() {
                         }
                         value={addressesForm.recieverAddress}
                       />
-                      {typeServiceForm.type === "насрочен час" && (
+                      {typeServiceForm.type === "timedDelivery" && (
                         <>
                           <div className="flex justify-between p-2 border-l border-r border-b border-neutral-content px-5">
                             <div className="flex gap-3 max-sm:gap-1">
@@ -988,6 +979,9 @@ export default function NewDelivery() {
                   disabled={!validators.get("everything")!() || !acceptLegally}
                   onClick={SaveDelivery}
                 >
+                  {requestDelivery.isLoading && (
+                    <span className="loading loading-spinner"></span>
+                  )}
                   <strong>ПОТВЪРДИ ЗАЯВКА</strong>
                 </button>
               </motion.section>

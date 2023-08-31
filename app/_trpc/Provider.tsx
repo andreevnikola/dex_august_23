@@ -4,18 +4,25 @@ import { httpBatchLink } from "@trpc/client";
 import React, { useState } from "react";
 
 import { trpc } from "./client";
+import { useAuth } from "@clerk/nextjs";
 
 export default function ReactQueryProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { getToken } = useAuth();
   const [queryClient] = useState(() => new QueryClient({}));
   const [trpcClient] = useState(() =>
     trpc.createClient({
       links: [
         httpBatchLink({
           url: process.env.NEXT_PUBLIC_APP_URL + "/api/trpc",
+          async headers() {
+            return {
+              authorization: `Bearer ${await getToken()}`,
+            };
+          },
         }),
       ],
     })

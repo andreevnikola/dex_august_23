@@ -120,7 +120,7 @@ export const AuthenticatedHeader = () => {
                   <a>Магазини</a>
                 </li>
                 <li>
-                  <a>История</a>
+                  <Link href="/history">История</Link>
                 </li>
                 <li>
                   <Link href="/delivery/new">
@@ -148,7 +148,7 @@ export const AuthenticatedHeader = () => {
                 <a>Магазини</a>
               </li>
               <li>
-                <a>История</a>
+                <Link href="/history">История</Link>
               </li>
               <li>
                 <Link href="/delivery/new">
