@@ -81,8 +81,7 @@ export default function NewDelivery() {
     // === RECIEVER FORM VALIDATORS ===
     [
       "reciever.phone",
-      () =>
-        recieverForm.phone?.length === 8 || recieverForm.phone?.length === 9,
+      () => recieverForm.phone?.length >= 8 && recieverForm.phone?.length <= 11,
     ],
     [
       "reciever.description",
@@ -267,10 +266,8 @@ export default function NewDelivery() {
     );
   }, [typeServiceForm]);
 
-  const { userId, getToken } = useAuth();
   const SaveDelivery = async () => {
-    const token = await getToken({ template: "supabase" });
-    const supabase = await supabaseClient(token!);
+    const supabase = await supabaseClient();
     console.log(recieverForm.phone);
     const deliveries = await supabase.from("deliveries").insert({
       // sender: userId,
@@ -279,7 +276,7 @@ export default function NewDelivery() {
           ? recieverForm.phoneStarter + recieverForm.phone
           : null,
       sender_address: addressesForm.senderAddress,
-      reciever_address: addressesForm.recieverAddress,
+      receiver_address: addressesForm.recieverAddress,
       delivery_type: typeServiceForm.type,
       wanted_products:
         typeServiceForm.type == "купи" ? typeServiceForm.description : null,
