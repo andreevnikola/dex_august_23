@@ -1,10 +1,15 @@
-import PageLoading from "@/app/loading";
-import { currentUser } from "@clerk/nextjs";
-import { createClient } from "@supabase/supabase-js";
+import { currentUser, useAuth } from "@clerk/nextjs";
+import { User } from "@clerk/nextjs/server";
 
-export function Records({ records }) {
-  return records.map((record: any) => (
-    <div className="w-full max-w-2xl bg-base-200 rounded-lg shadow-md p-5">
+export function Records({ records }: any) {
+  return records.map((record: any, index: number) => (
+    <div
+      key={index}
+      className={
+        "w-full max-w-2xl rounded-lg shadow-md p-5 " +
+        (index % 2 === 0 ? "bg-base-200" : "bg-base-100")
+      }
+    >
       {record.receiver && <p>Получател: {record.receiver}</p>}
       {record.package_title && (
         <p>Заглавие на колета: {record.package_title}</p>
@@ -29,24 +34,9 @@ export function Records({ records }) {
   ));
 }
 
-export default async function Historyn() {
-  const user = await currentUser();
+export default async function History() {
+  const user = await useAuth();
 
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_ADMIN_KEY!,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
-    }
-  );
-
-  const { data, error } = await supabase
-    .from("deliveries")
-    .select("*")
-    .eq("sender", user?.id);
   return (
     <section className="w-full flex justify-center items-center gap-5 flex-col p-3">
       <div className="w-full max-w-2xl bg-base-200 rounded-lg shadow-md p-5">

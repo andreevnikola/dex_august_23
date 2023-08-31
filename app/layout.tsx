@@ -10,6 +10,7 @@ import { AuthenticatedHeader, InformationalHeader } from "@/components/Headers";
 import { Suspense } from "react";
 import PageLoading from "./loading";
 import Footer from "@/components/Footer";
+import { createClient } from "@supabase/supabase-js";
 config.autoAddCss = false;
 
 const inter = Inter({ subsets: ["latin"] });

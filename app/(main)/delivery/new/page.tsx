@@ -1,6 +1,5 @@
 "use client";
 import { getCurrentTime } from "@/app/config";
-import { supabaseClient } from "@/utils/supabaseClient";
 import { useAuth } from "@clerk/nextjs";
 import {
   faCaretLeft,
@@ -267,33 +266,33 @@ export default function NewDelivery() {
   }, [typeServiceForm]);
 
   const SaveDelivery = async () => {
-    const supabase = await supabaseClient();
-    console.log(recieverForm.phone);
-    const deliveries = await supabase.from("deliveries").insert({
-      // sender: userId,
-      reciever:
-        typeServiceForm.type !== "купи"
-          ? recieverForm.phoneStarter + recieverForm.phone
-          : null,
-      sender_address: addressesForm.senderAddress,
-      receiver_address: addressesForm.recieverAddress,
-      delivery_type: typeServiceForm.type,
-      wanted_products:
-        typeServiceForm.type == "купи" ? typeServiceForm.description : null,
-      package_title:
-        typeServiceForm.type !== "купи" ? recieverForm.title : null,
-      package_description:
-        typeServiceForm.type !== "купи" ? recieverForm.description : null,
-      receiving_time:
-        typeServiceForm.type === "насрочен час"
-          ? addressesForm.recieverRecievingTime
-          : null,
-      sending_time:
-        typeServiceForm.type === "насрочен час"
-          ? addressesForm.senderSendingTime
-          : null,
-    });
-    console.log(deliveries);
+    // const supabase = await supabaseClient();
+    // console.log(recieverForm.phone);
+    // const deliveries = await supabase.from("deliveries").insert({
+    //   // sender: userId,
+    //   reciever:
+    //     typeServiceForm.type !== "купи"
+    //       ? recieverForm.phoneStarter + recieverForm.phone
+    //       : null,
+    //   sender_address: addressesForm.senderAddress,
+    //   receiver_address: addressesForm.recieverAddress,
+    //   delivery_type: typeServiceForm.type,
+    //   wanted_products:
+    //     typeServiceForm.type == "купи" ? typeServiceForm.description : null,
+    //   package_title:
+    //     typeServiceForm.type !== "купи" ? recieverForm.title : null,
+    //   package_description:
+    //     typeServiceForm.type !== "купи" ? recieverForm.description : null,
+    //   receiving_time:
+    //     typeServiceForm.type === "насрочен час"
+    //       ? addressesForm.recieverRecievingTime
+    //       : null,
+    //   sending_time:
+    //     typeServiceForm.type === "насрочен час"
+    //       ? addressesForm.senderSendingTime
+    //       : null,
+    // });
+    // console.log(deliveries);
   };
 
   return (

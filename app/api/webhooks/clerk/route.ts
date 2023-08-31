@@ -68,6 +68,7 @@ const handler = async (req: Request) => {
           phone: evt.data.phone_numbers.find(
             (phone) => phone.id === (evt!.data as any).primary_phone_number_id
           ),
+          profile_picture: evt.data.image_url,
         })
         .eq("id", evt.data.id);
       if (updationError) {

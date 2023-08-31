@@ -89,7 +89,7 @@ export const InformationalHeader = () => {
 export const AuthenticatedHeader = () => {
   return (
     <>
-      <header className="sticky top-0 h-auto z-50 backdrop-filter backdrop-blur-md bg-transparenty-base-100 backdrop-brightness-125">
+      <header className="sticky top-0 h-auto z-50 backdrop-filter backdrop-blur-[9px] bg-transparenty-base-100 backdrop-brightness-125">
         <nav className="navbar text-neutral">
           <div className="navbar-start">
             <div className="dropdown">
