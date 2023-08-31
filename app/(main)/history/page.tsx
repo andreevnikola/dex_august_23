@@ -1,6 +1,4 @@
-import { trpc } from "@/app/_trpc/client";
-import { currentUser, useAuth } from "@clerk/nextjs";
-import { User } from "@clerk/nextjs/server";
+import { serverClient } from "@/app/_trpc/serverClient";
 
 export function Records({ records }: any) {
   return records.map((record: any, index: number) => (
@@ -36,8 +34,7 @@ export function Records({ records }: any) {
 }
 
 export default async function History() {
-  const user = await useAuth();
-  const { data } = trpc.getTodos.useQuery();
+  const data = await serverClient.getTodos();
   return (
     <section className="w-full flex justify-center items-center gap-5 flex-col p-3">
       <div className="w-full max-w-2xl bg-base-200 rounded-lg shadow-md p-5">
@@ -47,7 +44,7 @@ export default async function History() {
         <div className="stat">
           <div className="stat-title">Отказани поръчки</div>
           <div className="stat-value text-error text-5xl">
-            {data?.map((d) => d.canceled).reduce((a, b) => a + b, 0) ?? 0}
+            {/* {data?.map((d) => d.canceled).reduce((a, b) => a + b, 0) ?? 0} */}
           </div>
           <div className="stat-desc text-[0.7rem]">
             Тези които не изпълнихме
@@ -65,14 +62,14 @@ export default async function History() {
           <div className="stat-desc">Средно между поръчките</div>
         </div>
       </div>
-      <Records records={data ?? []} />
+      {/* <Records records={data ?? []} />
       {error && (
         <div className="toast">
           <div className="alert alert-error">
             <span>{error.message}</span>
           </div>
         </div>
-      )}
+      )} */}
     </section>
   );
 }
