@@ -124,7 +124,6 @@ export default function Actions() {
           </div>
         </div>
       </div>
-      <Footer />
     </>
   );
 }
