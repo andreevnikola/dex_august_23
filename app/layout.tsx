@@ -10,7 +10,7 @@ import { AuthenticatedHeader, InformationalHeader } from "@/components/Headers";
 import { Suspense } from "react";
 import PageLoading from "./loading";
 import Footer from "@/components/Footer";
-import { createClient } from "@supabase/supabase-js";
+import ReactQueryProvider from "./_trpc/Provider";
 config.autoAddCss = false;
 
 const inter = Inter({ subsets: ["latin"] });
@@ -40,7 +40,9 @@ export default function RootLayout({
             <SignedIn>
               <AuthenticatedHeader />
             </SignedIn>
-            <Suspense fallback={<PageLoading />}>{children}</Suspense>
+            <Suspense fallback={<PageLoading />}>
+              <ReactQueryProvider>{children}</ReactQueryProvider>
+            </Suspense>
             <Footer />
           </ClerkLoaded>
         </body>
