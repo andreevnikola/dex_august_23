@@ -1,37 +1,37 @@
 import { serverClient } from "@/app/_trpc/serverClient";
 
-export function Records({ records }: any) {
-  return records.map((record: any, index: number) => (
-    <div
-      key={index}
-      className={
-        "w-full max-w-2xl rounded-lg shadow-md p-5 " +
-        (index % 2 === 0 ? "bg-base-200" : "bg-base-100")
-      }
-    >
-      {record.receiver && <p>Получател: {record.receiver}</p>}
-      {record.package_title && (
-        <p>Заглавие на колета: {record.package_title}</p>
-      )}
-      {record.package_description && (
-        <p>Описание на колета: {record.package_description}</p>
-      )}
-      <p>Адрес на изпращач: {record.sender_address}</p>
-      <p>Адрес на получател: {record.receiver_address}</p>
-      <p>Вид на заявка: {record.type}</p>
-      {record.wanted_products && (
-        <p>Оказания за покупка: {record.wanted_products}</p>
-      )}
-      {record.sending_time && (
-        <p>Пристигане на адрес на изпращач: {record.sending_time}</p>
-      )}
-      {record.receiving_time && (
-        <p>Пристигане на адрес на получател: {record.receiving_time}</p>
-      )}
-      <p>Заявено на {record.created_at}</p>
-    </div>
-  ));
-}
+// export function Records({ records }: any) {
+//   return records.map((record: any, index: number) => (
+//     <div
+//       key={index}
+//       className={
+//         "w-full max-w-2xl rounded-lg shadow-md p-5 " +
+//         (index % 2 === 0 ? "bg-base-200" : "bg-base-100")
+//       }
+//     >
+//       {record.receiver && <p>Получател: {record.receiver}</p>}
+//       {record.package_title && (
+//         <p>Заглавие на колета: {record.package_title}</p>
+//       )}
+//       {record.package_description && (
+//         <p>Описание на колета: {record.package_description}</p>
+//       )}
+//       <p>Адрес на изпращач: {record.sender_address}</p>
+//       <p>Адрес на получател: {record.receiver_address}</p>
+//       <p>Вид на заявка: {record.type}</p>
+//       {record.wanted_products && (
+//         <p>Оказания за покупка: {record.wanted_products}</p>
+//       )}
+//       {record.sending_time && (
+//         <p>Пристигане на адрес на изпращач: {record.sending_time}</p>
+//       )}
+//       {record.receiving_time && (
+//         <p>Пристигане на адрес на получател: {record.receiving_time}</p>
+//       )}
+//       <p>Заявено на {record.created_at}</p>
+//     </div>
+//   ));
+// }
 
 export default async function History() {
   const data = await serverClient.getTodos();
