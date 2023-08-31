@@ -2,7 +2,6 @@ import type { WebhookEvent } from "@clerk/nextjs/server";
 import { Webhook } from "svix";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 
 const webhookSecret: string = process.env.WEBHOOK_SECRET!;
 
