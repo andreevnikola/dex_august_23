@@ -37,6 +37,7 @@ enum DeliveryStages {
 model Delivery {
   id                 String         @id @default(uuid())
   sender             User           @relation(fields: [senderId], references: [id])
+  createdAt          DateTime       @default(now())
   senderId           String
   receiverPhone      String?
   type               DeliveryTypes
@@ -44,8 +45,8 @@ model Delivery {
   receiverAddress    String?
   shoppingList       String?
   store              String?
-  receivingTime      String?
-  sendingTime        String?
+  receivingTime      DateTime?
+  sendingTime        DateTime?
   packageTitle       String?
   packageDescription String?
   canceled           Boolean        @default(false)

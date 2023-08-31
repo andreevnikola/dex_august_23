@@ -270,8 +270,30 @@ export default function NewDelivery() {
     requestDelivery.mutate({
       senderAddress: addressesForm.senderAddress,
       receiverAddress: addressesForm.recieverAddress || null,
-      sendingTime: addressesForm.senderSendingTime || null,
-      receivingTime: addressesForm.recieverRecievingTime || null,
+      sendingTime:
+        addressesForm.senderSendingTime !== "sooner"
+          ? new Date(
+              new Date(
+                new Date().setHours(
+                  parseInt(addressesForm.senderSendingTime.split(":")[0])
+                )
+              ).setMinutes(
+                parseInt(addressesForm.senderSendingTime.split(":")[1])
+              )
+            ).toISOString()
+          : null,
+      receivingTime:
+        addressesForm.recieverRecievingTime !== "sooner"
+          ? new Date(
+              new Date(
+                new Date().setHours(
+                  parseInt(addressesForm.recieverRecievingTime.split(":")[0])
+                )
+              ).setMinutes(
+                parseInt(addressesForm.recieverRecievingTime.split(":")[1])
+              )
+            ).toISOString()
+          : null,
       packageDescription: recieverForm.description || null,
       packageTitle: recieverForm.title || null,
       receiverPhone: ((recieverForm.phoneStarter + recieverForm.phone).length >

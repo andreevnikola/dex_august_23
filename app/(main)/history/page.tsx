@@ -1,8 +1,8 @@
 import { db } from "@/app/_db/prisma";
 import { currentUser } from "@clerk/nextjs";
 
-export function Records({ records }: ) {
-  return records.map((record: any, index: number) => (
+export function Record({ record, index }: any) {
+  return (
     <div
       key={index}
       className={
@@ -10,28 +10,25 @@ export function Records({ records }: ) {
         (index % 2 === 0 ? "bg-base-200" : "bg-base-100")
       }
     >
-      {record.receiver && <p>Получател: {record.receiver}</p>}
-      {record.package_title && (
-        <p>Заглавие на колета: {record.package_title}</p>
-      )}
-      {record.package_description && (
-        <p>Описание на колета: {record.package_description}</p>
+      {record.receiver && <p>Получател: {record.receiverPhone}</p>}
+      {record.package_title && <p>Заглавие на колета: {record.packageTitle}</p>}
+      {record.packageDescription && (
+        <p>Описание на колета: {record.packageDescription}</p>
       )}
       <p>Адрес на изпращач: {record.sender_address}</p>
       <p>Адрес на получател: {record.receiver_address}</p>
       <p>Вид на заявка: {record.type}</p>
-      {record.wanted_products && (
-        <p>Оказания за покупка: {record.wanted_products}</p>
+      {record.shoppingList && <p>Оказания за покупка: {record.shoppingList}</p>}
+      {record.sendingTime && (
+        <p>Пристигане на адрес на изпращач: {record.sendingTime}</p>
       )}
-      {record.sending_time && (
-        <p>Пристигане на адрес на изпращач: {record.sending_time}</p>
+      {record.receivingTime && (
+        <p>Пристигане на адрес на получател: {record.receivingTime}</p>
       )}
-      {record.receiving_time && (
-        <p>Пристигане на адрес на получател: {record.receiving_time}</p>
-      )}
-      {/* <p>Заявено на {record.bold}</p> */}
+      <p>Заявено на {record.createdAt}</p>
+      <p>Статус: {record.stage}</p>
     </div>
-  ));
+  );
 }
 
 export default async function History() {
@@ -43,7 +40,7 @@ export default async function History() {
   });
   let canceled = 0;
   history.forEach((record) => {
-    record.canceled ? canceled++ : null;
+    record.canceled ? canceled++ : console.log(record);
   });
   return (
     <section className="w-full flex justify-center items-center gap-5 flex-col p-3">
@@ -70,7 +67,9 @@ export default async function History() {
           <div className="stat-desc">Средно между поръчките</div>
         </div>
       </div>
-      <Records records={history} />
+      {history.map((record: any, index: number) => (
+        <Record index={index} record={record} />
+      ))}
     </section>
   );
 }
